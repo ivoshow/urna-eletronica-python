@@ -1,0 +1,116 @@
+{
+  "eleicao": {
+    "descricao": "Eleições Gerais 2026 (simulação)",
+    "turno": 2,
+    "data": "25/10/2026"
+  },
+  "secao": {
+    "uf": "RR",
+    "municipio": "Boa Vista",
+    "zona": "0001",
+    "secao": "0042",
+    "local": "Laboratório de Informática - ITEAM",
+    "codigo_urna": "2026.0001.0042"
+  },
+  "mesa": {
+    "presidente": "Presidente da Mesa",
+    "senha": "1234"
+  },
+  "partidos": [
+    {
+      "numero": "14",
+      "sigla": "PAZ",
+      "nome": "Partido da Amazônia Zeladora",
+      "cor": "#2e7d32"
+    },
+    {
+      "numero": "27",
+      "sigla": "MUC",
+      "nome": "Movimento União Cidadã",
+      "cor": "#1565c0"
+    },
+    {
+      "numero": "38",
+      "sigla": "PTF",
+      "nome": "Partido Trabalho e Futuro",
+      "cor": "#c62828"
+    },
+    {
+      "numero": "51",
+      "sigla": "RES",
+      "nome": "Rede Esperança Social",
+      "cor": "#ef8f00"
+    }
+  ],
+  "cargos": [
+    {
+      "codigo": "PR",
+      "nome": "Presidente",
+      "digitos": 2,
+      "candidatos": [
+        {
+          "numero": "14",
+          "nome": "Zélia Antunes",
+          "vices": [
+            {
+              "titulo": "Vice-Presidente",
+              "nome": "Alberto Nogueira"
+            }
+          ]
+        },
+        {
+          "numero": "27",
+          "nome": "Bernardo Siqueira",
+          "vices": [
+            {
+              "titulo": "Vice-Presidente",
+              "nome": "Cíntia Valadares"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "eleitores": [
+    {
+      "titulo": "000123450101",
+      "nome": "João Pereira da Silva",
+      "biometria": true
+    },
+    {
+      "titulo": "000234560202",
+      "nome": "Maria Aparecida Santos",
+      "biometria": true
+    },
+    {
+      "titulo": "000345670303",
+      "nome": "Pedro Henrique Oliveira",
+      "biometria": false
+    },
+    {
+      "titulo": "000456780404",
+      "nome": "Ana Carolina Ribeiro",
+      "biometria": true
+    },
+    {
+      "titulo": "000567890505",
+      "nome": "Francisco das Chagas",
+      "biometria": true
+    },
+    {
+      "titulo": "000678900606",
+      "nome": "Luana Rodrigues Macuxi",
+      "biometria": false
+    },
+    {
+      "titulo": "000789010707",
+      "nome": "Rafael Gomes Barbosa",
+      "biometria": true
+    },
+    {
+      "titulo": "000890120808",
+      "nome": "Beatriz Lima Cardoso",
+      "biometria": true
+    }
+  ]
+}

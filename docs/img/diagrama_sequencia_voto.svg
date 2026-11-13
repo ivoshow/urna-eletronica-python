@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="520" viewBox="0 0 860 520" role="img" aria-label="Diagrama de sequência da liberação e do voto">
+<style>
+text { font-family: 'Segoe UI', 'Liberation Sans', Arial, sans-serif; fill: #1d232a; }
+.caixa { fill: #ffffff; stroke: #5b6672; stroke-width: 1.4; }
+.caixa.modelo { fill: #e3f3ea; stroke: #1f6f43; }
+.caixa.interface { fill: #e6eff9; stroke: #1d5fa8; }
+.caixa.dados { fill: #fbeee2; stroke: #b85c12; }
+.seta { stroke: #5b6672; stroke-width: 1.6; fill: none; }
+.rot { font-size: 12px; fill: #5b6672; }
+.tit { font-size: 15px; font-weight: 700; }
+.peq { font-size: 12.5px; }
+</style>
+<rect x="0" y="0" width="860" height="520" fill="#ffffff"/>
+  <defs><marker id="pt2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: #5b6672"/></marker></defs>
+  <g class="peq">
+    <rect class="caixa interface" x="10" y="10" width="140" height="40" rx="8"/><text x="80" y="35" text-anchor="middle">JanelaTerminal</text>
+    <rect class="caixa modelo" x="185" y="10" width="150" height="40" rx="8"/><text x="260" y="35" text-anchor="middle">TerminalMesario</text>
+    <rect class="caixa modelo" x="370" y="10" width="110" height="40" rx="8"/><text x="425" y="35" text-anchor="middle">Urna</text>
+    <rect class="caixa modelo" x="515" y="10" width="150" height="40" rx="8"/><text x="590" y="35" text-anchor="middle">SessaoVotacao</text>
+    <rect class="caixa modelo" x="700" y="10" width="70" height="40" rx="8"/><text x="735" y="35" text-anchor="middle">Cargo</text>
+    <rect class="caixa interface" x="790" y="10" width="64" height="40" rx="8"/><text x="822" y="35" text-anchor="middle">TelaUrna</text>
+  </g>
+  <g style="stroke: #dde2e8; stroke-dasharray: 4 4;">
+    <line x1="80" y1="50" x2="80" y2="510"/><line x1="260" y1="50" x2="260" y2="510"/>
+    <line x1="425" y1="50" x2="425" y2="510"/><line x1="590" y1="50" x2="590" y2="510"/>
+    <line x1="735" y1="50" x2="735" y2="510"/><line x1="822" y1="50" x2="822" y2="510"/>
+  </g>
+  <g class="rot">
+    <path class="seta" d="M80 80 L258 80" marker-end="url(#pt2)"/><text x="90" y="74">consultar(titulo)</text>
+    <path class="seta" d="M258 104 L82 104" marker-end="url(#pt2)"/><text x="90" y="98">Eleitor (ou exceção)</text>
+    <path class="seta" d="M80 136 L258 136" marker-end="url(#pt2)"/><text x="90" y="130">verificar_urna_pronta()</text>
+    <path class="seta" d="M260 150 L423 150" marker-end="url(#pt2)"/><text x="268" y="144">verificar_disponivel()</text>
+    <text x="16" y="182">… mesário confere a digital …</text>
+    <path class="seta" d="M80 204 L258 204" marker-end="url(#pt2)"/><text x="90" y="198">liberar(eleitor, True)</text>
+    <path class="seta" d="M260 222 L423 222" marker-end="url(#pt2)"/><text x="268" y="216">habilitar(eleitor)</text>
+    <path class="seta" d="M425 240 L588 240" marker-end="url(#pt2)"/><text x="433" y="234">cria SessaoVotacao</text>
+    <path class="seta" d="M425 262 L820 262" marker-end="url(#pt2)"/><text x="610" y="256">evento "liberada"</text>
+    <path class="seta" d="M820 300 L427 300" marker-end="url(#pt2)"/><text x="610" y="294">digitar("2") …</text>
+    <path class="seta" d="M425 316 L588 316" marker-end="url(#pt2)"/><text x="433" y="330">digitar</text>
+    <path class="seta" d="M820 356 L427 356" marker-end="url(#pt2)"/><text x="610" y="350">confirmar()</text>
+    <path class="seta" d="M425 374 L588 374" marker-end="url(#pt2)"/><text x="433" y="368">confirmar()</text>
+    <path class="seta" d="M590 392 L733 392" marker-end="url(#pt2)"/><text x="598" y="386">registrar(previa)</text>
+    <text x="600" y="414">… repete para os 6 votos …</text>
+    <path class="seta" d="M425 444 L82 444" marker-end="url(#pt2)"/><text x="160" y="438">evento "fim_eleitor"</text>
+    <path class="seta" d="M425 462 L820 462" marker-end="url(#pt2)"/><text x="610" y="456">tela FIM</text>
+    <text x="90" y="490">display: "VOTO CONCLUÍDO"</text>
+  </g>
+</svg>

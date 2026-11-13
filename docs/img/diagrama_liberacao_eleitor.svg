@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470" role="img" aria-label="Fluxo da liberação do eleitor e da trava do teclado da urna">
+<style>
+text { font-family: 'Segoe UI', 'Liberation Sans', Arial, sans-serif; fill: #1d232a; }
+.caixa { fill: #ffffff; stroke: #5b6672; stroke-width: 1.4; }
+.caixa.modelo { fill: #e3f3ea; stroke: #1f6f43; }
+.caixa.interface { fill: #e6eff9; stroke: #1d5fa8; }
+.caixa.dados { fill: #fbeee2; stroke: #b85c12; }
+.seta { stroke: #5b6672; stroke-width: 1.6; fill: none; }
+.rot { font-size: 12px; fill: #5b6672; }
+.tit { font-size: 15px; font-weight: 700; }
+.peq { font-size: 12.5px; }
+</style>
+<rect x="0" y="0" width="900" height="470" fill="#ffffff"/>
+  <defs><marker id="ptl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: #5b6672"/></marker></defs>
+  <text class="tit" x="10" y="22">A) Liberação — feita pelo mesário</text>
+  <g class="peq">
+    <rect class="caixa interface" x="10" y="36" width="150" height="70" rx="8"/>
+    <text x="85" y="62" text-anchor="middle">Mesário confere</text><text x="85" y="80" text-anchor="middle">digital ou documento</text>
+    <text x="85" y="97" text-anchor="middle" class="rot">JanelaTerminal._liberar()</text>
+    <rect class="caixa modelo" x="195" y="36" width="160" height="70" rx="8"/>
+    <text x="275" y="58" text-anchor="middle">TerminalMesario.liberar()</text>
+    <text x="275" y="78" text-anchor="middle" class="rot">cabo conectado?</text><text x="275" y="95" text-anchor="middle" class="rot">biometria conferida?</text>
+    <rect class="caixa modelo" x="390" y="36" width="160" height="70" rx="8"/>
+    <text x="470" y="58" text-anchor="middle">Urna.habilitar()</text>
+    <text x="470" y="78" text-anchor="middle" class="rot">votação aberta e livre?</text><text x="470" y="95" text-anchor="middle" class="rot">eleitor ainda não votou?</text>
+    <rect class="caixa dados" x="585" y="36" width="140" height="70" rx="8"/>
+    <text x="655" y="62" text-anchor="middle">__estado =</text><text x="655" y="82" text-anchor="middle" style="font-weight:700">VOTANDO</text>
+    <text x="655" y="98" text-anchor="middle" class="rot">+ nova SessaoVotacao</text>
+    <rect class="caixa interface" x="760" y="36" width="130" height="70" rx="8"/>
+    <text x="825" y="58" text-anchor="middle">_notificar(</text><text x="825" y="76" text-anchor="middle">"liberada")</text>
+    <text x="825" y="95" text-anchor="middle" class="rot">telas redesenham</text>
+    <path class="seta" d="M160 71 L193 71" marker-end="url(#ptl)"/><path class="seta" d="M355 71 L388 71" marker-end="url(#ptl)"/>
+    <path class="seta" d="M550 71 L583 71" marker-end="url(#ptl)"/><path class="seta" d="M725 71 L758 71" marker-end="url(#ptl)"/>
+    <text x="198" y="128" class="rot" style="fill: #b3261e">não → UrnaDesconectada / BiometriaPendente</text>
+    <text x="393" y="146" class="rot" style="fill: #b3261e">não → VotacaoNaoIniciada / UrnaOcupada / EleitorJaVotou</text>
+  </g>
+
+  <text class="tit" x="10" y="190">B) Cada tecla da urna passa pela "trava"</text>
+  <g class="peq">
+    <rect class="caixa interface" x="10" y="206" width="150" height="62" rx="8"/>
+    <text x="85" y="232" text-anchor="middle">Eleitor aperta</text><text x="85" y="250" text-anchor="middle">TelaUrna.acionar()</text>
+    <rect class="caixa modelo" x="195" y="206" width="160" height="62" rx="8"/>
+    <text x="275" y="232" text-anchor="middle">Urna.digitar() /</text><text x="275" y="250" text-anchor="middle">confirmar() …</text>
+    <polygon class="caixa dados" points="470,196 560,237 470,278 380,237"/>
+    <text x="470" y="232" text-anchor="middle">_sessao_ativa()</text><text x="470" y="250" text-anchor="middle" style="font-weight:700">VOTANDO?</text>
+    <rect class="caixa modelo" x="600" y="206" width="160" height="62" rx="8"/>
+    <text x="680" y="232" text-anchor="middle">sim: a tecla vai para</text><text x="680" y="250" text-anchor="middle">a SessaoVotacao</text>
+    <rect class="caixa" x="380" y="316" width="180" height="62" rx="8" style="stroke: #b3261e"/>
+    <text x="470" y="342" text-anchor="middle">não: UrnaBloqueada</text><text x="470" y="360" text-anchor="middle">faixa "URNA BLOQUEADA"</text>
+    <path class="seta" d="M160 237 L193 237" marker-end="url(#ptl)"/><path class="seta" d="M355 237 L378 237" marker-end="url(#ptl)"/>
+    <path class="seta" d="M560 237 L598 237" marker-end="url(#ptl)"/><path class="seta" d="M470 278 L470 314" marker-end="url(#ptl)"/>
+  </g>
+
+  <text class="tit" x="10" y="420">C) A urna trava de novo</text>
+  <g class="peq">
+    <rect class="caixa dados" x="250" y="398" width="640" height="56" rx="8"/>
+    <text x="570" y="422" text-anchor="middle">último confirmar() → _finalizar_eleitor() · interromper(senha) · religamento após queda</text>
+    <text x="570" y="442" text-anchor="middle">→ __estado = AGUARDANDO_ELEITOR (o teclado volta a bloquear)</text>
+  </g>
+</svg>

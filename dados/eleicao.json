@@ -1,0 +1,92 @@
+{
+  "eleicao": {
+    "descricao": "Eleições Gerais 2026 (simulação)",
+    "turno": 1,
+    "data": "04/10/2026"
+  },
+  "secao": {
+    "uf": "RR",
+    "municipio": "Boa Vista",
+    "zona": "0001",
+    "secao": "0042",
+    "local": "Laboratório de Informática - ITEAM",
+    "codigo_urna": "2026.0001.0042"
+  },
+  "mesa": {
+    "presidente": "Presidente da Mesa",
+    "senha": "1234"
+  },
+  "partidos": [
+    {"numero": "14", "sigla": "PAZ", "nome": "Partido da Amazônia Zeladora", "cor": "#2e7d32"},
+    {"numero": "27", "sigla": "MUC", "nome": "Movimento União Cidadã", "cor": "#1565c0"},
+    {"numero": "38", "sigla": "PTF", "nome": "Partido Trabalho e Futuro", "cor": "#c62828"},
+    {"numero": "51", "sigla": "RES", "nome": "Rede Esperança Social", "cor": "#ef8f00"}
+  ],
+  "cargos": [
+    {
+      "codigo": "DF", "nome": "Deputado Federal", "digitos": 4, "proporcional": true,
+      "candidatos": [
+        {"numero": "1401", "nome": "Ana Beatriz Moura"},
+        {"numero": "1422", "nome": "Carlos Henrique Lima"},
+        {"numero": "2710", "nome": "Débora Nunes Falcão"},
+        {"numero": "2788", "nome": "Eduardo Prado"},
+        {"numero": "3801", "nome": "Fernanda Rocha Lins"},
+        {"numero": "5123", "nome": "Gustavo Albuquerque"}
+      ]
+    },
+    {
+      "codigo": "DE", "nome": "Deputado Estadual", "digitos": 5, "proporcional": true,
+      "candidatos": [
+        {"numero": "14100", "nome": "Helena Castro"},
+        {"numero": "14555", "nome": "Igor Mendes Viana"},
+        {"numero": "27001", "nome": "Juliana Pires"},
+        {"numero": "38111", "nome": "Kléber Sousa Brito"},
+        {"numero": "51234", "nome": "Larissa Teixeira"},
+        {"numero": "51900", "nome": "Marcos Vieira Dantas"}
+      ]
+    },
+    {
+      "codigo": "SE", "nome": "Senador", "digitos": 3, "votos_por_eleitor": 2,
+      "candidatos": [
+        {"numero": "141", "nome": "Neusa Barreto", "vices": [
+          {"titulo": "1º Suplente", "nome": "Osmar Teles"},
+          {"titulo": "2º Suplente", "nome": "Priscila Amaral"}]},
+        {"numero": "277", "nome": "Otávio Rangel", "vices": [
+          {"titulo": "1º Suplente", "nome": "Quésia Moreira"},
+          {"titulo": "2º Suplente", "nome": "Renan Lobo"}]},
+        {"numero": "383", "nome": "Patrícia Lemos", "vices": [
+          {"titulo": "1º Suplente", "nome": "Sérgio Antunes"},
+          {"titulo": "2º Suplente", "nome": "Tânia Campos"}]},
+        {"numero": "515", "nome": "Raimundo Quintela", "vices": [
+          {"titulo": "1º Suplente", "nome": "Ulisses Farias"},
+          {"titulo": "2º Suplente", "nome": "Vera Lúcia Prates"}]}
+      ]
+    },
+    {
+      "codigo": "GO", "nome": "Governador", "digitos": 2,
+      "candidatos": [
+        {"numero": "14", "nome": "Sabrina Duarte", "vices": [{"titulo": "Vice-Governador", "nome": "Tiago Fonseca"}]},
+        {"numero": "27", "nome": "Ubirajara Melo", "vices": [{"titulo": "Vice-Governador", "nome": "Vanessa Coelho"}]},
+        {"numero": "38", "nome": "Wagner Paiva", "vices": [{"titulo": "Vice-Governador", "nome": "Yasmin Torres"}]}
+      ]
+    },
+    {
+      "codigo": "PR", "nome": "Presidente", "digitos": 2,
+      "candidatos": [
+        {"numero": "14", "nome": "Zélia Antunes", "vices": [{"titulo": "Vice-Presidente", "nome": "Alberto Nogueira"}]},
+        {"numero": "27", "nome": "Bernardo Siqueira", "vices": [{"titulo": "Vice-Presidente", "nome": "Cíntia Valadares"}]},
+        {"numero": "51", "nome": "Daniel Ferraz", "vices": [{"titulo": "Vice-Presidente", "nome": "Elisa Montenegro"}]}
+      ]
+    }
+  ],
+  "eleitores": [
+    {"titulo": "000123450101", "nome": "João Pereira da Silva", "biometria": true},
+    {"titulo": "000234560202", "nome": "Maria Aparecida Santos", "biometria": true},
+    {"titulo": "000345670303", "nome": "Pedro Henrique Oliveira", "biometria": false},
+    {"titulo": "000456780404", "nome": "Ana Carolina Ribeiro", "biometria": true},
+    {"titulo": "000567890505", "nome": "Francisco das Chagas", "biometria": true},
+    {"titulo": "000678900606", "nome": "Luana Rodrigues Macuxi", "biometria": false},
+    {"titulo": "000789010707", "nome": "Rafael Gomes Barbosa", "biometria": true},
+    {"titulo": "000890120808", "nome": "Beatriz Lima Cardoso", "biometria": true}
+  ]
+}

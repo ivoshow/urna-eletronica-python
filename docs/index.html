@@ -1,0 +1,1775 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de Urna Eletrônica — Documentação</title>
+<style>
+:root {
+  --fundo: #f6f7f9; --papel: #ffffff; --texto: #1d232a; --suave: #5b6672; --linha: #dde2e8;
+  --destaque: #1f6f43; --destaque-claro: #e3f3ea; --azul: #1d5fa8; --azul-claro: #e6eff9;
+  --laranja: #b85c12; --laranja-claro: #fbeee2; --vermelho: #b3261e; --vermelho-claro: #fbe9e7;
+  --codigo-fundo: #f1f3f6; --codigo-texto: #1d232a; --comentario: #6a7682; --barra: #ffffff;
+  --sombra: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fundo: #12161b; --papel: #1a2027; --texto: #e3e8ee; --suave: #9aa6b2; --linha: #2c353f;
+    --destaque: #5fcf8a; --destaque-claro: #173326; --azul: #78b0ef; --azul-claro: #172a40;
+    --laranja: #f0a35e; --laranja-claro: #3a2715; --vermelho: #f08a80; --vermelho-claro: #3b1c1a;
+    --codigo-fundo: #0f1318; --codigo-texto: #dfe5eb; --comentario: #7f8b97; --barra: #161b21;
+    --sombra: none;
+  }
+}
+:root[data-theme="dark"] {
+  --fundo: #12161b; --papel: #1a2027; --texto: #e3e8ee; --suave: #9aa6b2; --linha: #2c353f;
+  --destaque: #5fcf8a; --destaque-claro: #173326; --azul: #78b0ef; --azul-claro: #172a40;
+  --laranja: #f0a35e; --laranja-claro: #3a2715; --vermelho: #f08a80; --vermelho-claro: #3b1c1a;
+  --codigo-fundo: #0f1318; --codigo-texto: #dfe5eb; --comentario: #7f8b97; --barra: #161b21;
+  --sombra: none;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+body {
+  margin: 0; background: var(--fundo); color: var(--texto);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Liberation Sans", sans-serif;
+}
+a { color: var(--azul); }
+code, pre { font-family: "DejaVu Sans Mono", "Liberation Mono", Consolas, monospace; font-size: .88em; }
+code { background: var(--codigo-fundo); padding: .1em .35em; border-radius: 4px; overflow-wrap: anywhere; }
+pre {
+  background: var(--codigo-fundo); color: var(--codigo-texto); padding: 14px 16px; border-radius: 8px;
+  overflow-x: auto; line-height: 1.5; border: 1px solid var(--linha); margin: 12px 0 18px;
+}
+pre code { background: none; padding: 0; font-size: 1em; }
+.c { color: var(--comentario); font-style: italic; }
+.k { color: var(--azul); font-weight: 600; }
+.s { color: var(--destaque); }
+.e { color: var(--vermelho); }
+
+.layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 100vh; }
+nav.lateral {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--barra);
+  border-right: 1px solid var(--linha); padding: 22px 18px 40px;
+}
+nav.lateral .marca { font-weight: 800; font-size: 1.05rem; line-height: 1.3; margin-bottom: 4px; }
+nav.lateral .subtitulo { color: var(--suave); font-size: .82rem; margin-bottom: 16px; }
+nav.lateral ol { list-style: none; margin: 0; padding: 0; }
+nav.lateral li a {
+  display: block; padding: 5px 10px; border-radius: 6px; color: var(--texto); text-decoration: none;
+  font-size: .9rem;
+}
+nav.lateral li a:hover { background: var(--codigo-fundo); }
+nav.lateral li a.ativo { background: var(--destaque-claro); color: var(--destaque); font-weight: 600; }
+nav.lateral li.sub a { padding-left: 24px; font-size: .84rem; color: var(--suave); }
+.tema { margin-top: 18px; width: 100%; padding: 7px; border-radius: 6px; border: 1px solid var(--linha);
+  background: var(--papel); color: var(--texto); cursor: pointer; font: inherit; font-size: .85rem; }
+
+main { padding: 36px 48px 80px; max-width: 1080px; }
+header.capa {
+  background: linear-gradient(135deg, #1f3b2c, #14532d 55%, #1d5fa8); color: #fff; border-radius: 14px;
+  padding: 34px 34px 30px; margin-bottom: 34px;
+}
+header.capa h1 { margin: 0 0 6px; font-size: 2rem; line-height: 1.2; }
+header.capa p { margin: 0; opacity: .92; }
+header.capa .selos { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+header.capa .selos span { background: rgba(255,255,255,.16); padding: 4px 10px; border-radius: 99px; font-size: .82rem; }
+
+.cabecalho-academico { background: var(--papel); border: 1px solid var(--linha); border-top: 5px solid var(--destaque);
+  border-radius: 10px; padding: 18px 22px; margin-bottom: 18px; box-shadow: var(--sombra); }
+.cabecalho-academico .inst { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px;
+  align-items: baseline; border-bottom: 1px solid var(--linha); padding-bottom: 10px; margin-bottom: 12px; }
+.cabecalho-academico .inst strong { font-size: 1.1rem; letter-spacing: .02em; }
+.cabecalho-academico .inst span { color: var(--suave); font-size: .85rem; }
+.cabecalho-academico dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 18px; margin: 0; }
+.cabecalho-academico dt { color: var(--suave); font-size: .85rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .04em; padding-top: 2px; }
+.cabecalho-academico dd { margin: 0; font-weight: 500; }
+.preencher { background: var(--laranja-claro); color: var(--laranja); border: 1px dashed var(--laranja);
+  padding: 0 8px; border-radius: 4px; font-weight: 600; }
+@media (max-width: 520px) { .cabecalho-academico dl { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .cabecalho-academico dd { margin-bottom: 8px; } }
+.passo { display: flex; gap: 12px; align-items: center; margin: 26px 0 8px; }
+.passo .num { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--destaque); color: #fff;
+  display: grid; place-items: center; font-weight: 700; font-size: .9rem; }
+:root[data-theme="dark"] .passo .num { color: #0b1a12; }
+.passo h4 { margin: 0; }
+.telas { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin: 10px 0 6px; }
+.telas.tres { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.telas > figure.tela:only-child { max-width: 620px; }
+.telas.duas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+figure.tela { margin: 0; padding: 10px; }
+figure.tela img { width: 100%; height: auto; display: block; border-radius: 6px; border: 1px solid var(--linha); }
+figure.tela a { display: block; cursor: zoom-in; }
+figure.tela figcaption { text-align: left; margin-top: 8px; }
+figure.tela figcaption strong { color: var(--texto); }
+.bobina { max-height: 560px; overflow-y: auto; border: 1px solid var(--linha); border-radius: 6px; background: #fff; }
+.bobina img { border: none !important; }
+@media (max-width: 520px) { .telas, .telas.tres, .telas.duas { grid-template-columns: minmax(0, 1fr); } }
+.arquivo-codigo { margin: 14px 0 -6px; font-size: .8rem; color: var(--suave); }
+section { margin-bottom: 52px; }
+h2 { font-size: 1.55rem; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--linha); }
+h3 { font-size: 1.2rem; margin: 30px 0 10px; }
+h4 { font-size: 1.02rem; margin: 22px 0 8px; }
+p { margin: 0 0 12px; }
+
+.cartao { background: var(--papel); border: 1px solid var(--linha); border-radius: 10px; padding: 18px 20px;
+  box-shadow: var(--sombra); margin: 14px 0; }
+.grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin: 14px 0; }
+.grade .cartao { margin: 0; }
+.cartao h4 { margin-top: 0; }
+
+.aviso { border-left: 4px solid var(--azul); background: var(--azul-claro); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; }
+.aviso.verde { border-color: var(--destaque); background: var(--destaque-claro); }
+.aviso.laranja { border-color: var(--laranja); background: var(--laranja-claro); }
+.aviso.vermelho { border-color: var(--vermelho); background: var(--vermelho-claro); }
+.aviso p:last-child { margin: 0; }
+
+.tabela { overflow-x: auto; margin: 12px 0 18px; border: 1px solid var(--linha); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; background: var(--papel); }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--linha); vertical-align: top; }
+th { background: var(--codigo-fundo); font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+
+.selo { display: inline-block; font-size: .72rem; font-weight: 700; padding: 1px 7px; border-radius: 99px;
+  vertical-align: middle; letter-spacing: .02em; white-space: nowrap; }
+.selo.pub { background: var(--destaque-claro); color: var(--destaque); }
+.selo.prot { background: var(--laranja-claro); color: var(--laranja); }
+.selo.priv { background: var(--vermelho-claro); color: var(--vermelho); }
+.selo.prop { background: var(--azul-claro); color: var(--azul); }
+.selo.est { background: var(--codigo-fundo); color: var(--suave); border: 1px solid var(--linha); }
+
+figure { margin: 18px 0; background: var(--papel); border: 1px solid var(--linha); border-radius: 10px; padding: 16px; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption { color: var(--suave); font-size: .85rem; margin-top: 8px; text-align: center; }
+svg text { font-family: system-ui, "Liberation Sans", sans-serif; fill: var(--texto); }
+svg .caixa { fill: var(--papel); stroke: var(--suave); stroke-width: 1.4; }
+svg .caixa.modelo { fill: var(--destaque-claro); stroke: var(--destaque); }
+svg .caixa.interface { fill: var(--azul-claro); stroke: var(--azul); }
+svg .caixa.dados { fill: var(--laranja-claro); stroke: var(--laranja); }
+svg .seta { stroke: var(--suave); stroke-width: 1.6; fill: none; }
+svg .rot { font-size: 12px; fill: var(--suave); }
+svg .tit { font-size: 15px; font-weight: 700; }
+svg .peq { font-size: 12.5px; }
+
+.ref-busca { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--linha);
+  background: var(--papel); color: var(--texto); font: inherit; margin: 6px 0 16px; }
+details.classe { background: var(--papel); border: 1px solid var(--linha); border-radius: 10px; margin: 10px 0;
+  box-shadow: var(--sombra); }
+details.classe > summary { cursor: pointer; padding: 13px 18px; list-style: none; display: flex; flex-wrap: wrap;
+  align-items: baseline; gap: 6px 12px; }
+details.classe > summary::-webkit-details-marker { display: none; }
+details.classe > summary::before { content: "▸"; color: var(--suave); transition: transform .15s; }
+details.classe[open] > summary::before { transform: rotate(90deg); }
+details.classe > summary .nome { font-family: "DejaVu Sans Mono", monospace; font-weight: 700; font-size: 1rem; }
+details.classe > summary .arq { color: var(--suave); font-size: .8rem; font-family: monospace; }
+details.classe > summary .resumo { color: var(--suave); font-size: .88rem; flex-basis: 100%; padding-left: 18px; }
+details.classe .corpo { padding: 0 18px 16px; border-top: 1px solid var(--linha); }
+dl.metodos { margin: 8px 0 0; }
+dl.metodos dt { font-family: "DejaVu Sans Mono", monospace; font-size: .86rem; font-weight: 600; margin-top: 12px;
+  overflow-wrap: anywhere; }
+dl.metodos dd { margin: 3px 0 0 16px; font-size: .92rem; }
+dl.metodos dd .lanca { color: var(--vermelho); font-size: .84rem; }
+
+.faq h4 { margin-bottom: 4px; }
+.rodape { color: var(--suave); font-size: .85rem; border-top: 1px solid var(--linha); padding-top: 18px; }
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  main { min-width: 0; }
+  nav.lateral { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--linha); }
+  nav.lateral ol { display: flex; flex-wrap: wrap; gap: 2px; }
+  nav.lateral li.sub { display: none; }
+  main { padding: 22px 16px 60px; }
+  header.capa { padding: 24px 20px; }
+  header.capa h1 { font-size: 1.5rem; }
+}
+@page { size: A4; margin: 14mm 12mm 16mm; }
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-size: 11pt; background: #fff; }
+  nav.lateral, .tema, .ref-busca { display: none; }
+  .layout { display: block; }
+  main { max-width: none; padding: 0; }
+  section { margin-bottom: 0; }
+  section > h2 { break-before: page; }
+  section#visao > h2 { break-before: auto; }
+  h2, h3, h4, .passo { break-after: avoid; }
+  figure, pre, tr, .cartao, .aviso, .passo { break-inside: avoid; }
+  details.classe > summary::before { content: ""; }
+  .telas { gap: 8px; }
+  .bobina { max-height: none; overflow: visible; border: none; }
+  .bobina img { max-height: 235mm; width: auto; margin: 0 auto; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="lateral" aria-label="Sumário">
+  <div class="marca">🗳️ Urna Eletrônica</div>
+  <div class="subtitulo">Documentação técnica • Projeto Integrador</div>
+  <ol>
+    <li><a href="#visao">1. Visão geral</a></li>
+    <li><a href="#executar">2. Como executar</a></li>
+    <li><a href="#manual">3. Manual de uso (telas)</a></li>
+    <li class="sub"><a href="#manual-preparar">3.1 Preparar a seção</a></li>
+    <li class="sub"><a href="#manual-liberar">3.2 Liberar o eleitor</a></li>
+    <li class="sub"><a href="#manual-votar">3.3 Votar</a></li>
+    <li class="sub"><a href="#manual-bloqueios">3.4 Mensagens de bloqueio</a></li>
+    <li class="sub"><a href="#manual-desistencia">3.5 Eleitor desistiu</a></li>
+    <li class="sub"><a href="#manual-energia">3.6 Queda de energia</a></li>
+    <li class="sub"><a href="#manual-encerrar">3.7 Encerrar e emitir o BU</a></li>
+    <li class="sub"><a href="#manual-2turno">3.8 Segundo turno</a></li>
+    <li><a href="#arquitetura">4. Arquitetura</a></li>
+    <li><a href="#fluxo">5. Fluxo de uma votação</a></li>
+    <li><a href="#estados">6. Estados da urna</a></li>
+    <li><a href="#poo">7. Conceitos de POO</a></li>
+    <li class="sub"><a href="#encapsulamento">7.2 _ e __ (name mangling)</a></li>
+    <li class="sub"><a href="#property">7.3 @property</a></li>
+    <li class="sub"><a href="#estaticos">7.4 @staticmethod / @classmethod</a></li>
+    <li class="sub"><a href="#heranca">7.6 Herança</a></li>
+    <li class="sub"><a href="#polimorfismo">7.7 Polimorfismo</a></li>
+    <li class="sub"><a href="#composicao">7.8 Composição</a></li>
+    <li class="sub"><a href="#observer">7.11 Observer</a></li>
+    <li><a href="#regras">8. Regras de negócio</a></li>
+    <li class="sub"><a href="#como-libera">Como a urna é liberada</a></li>
+    <li><a href="#ref-modelo">9. Referência: modelo</a></li>
+    <li><a href="#ref-interface">10. Referência: interface</a></li>
+    <li><a href="#json">11. Arquivo eleicao.json</a></li>
+    <li><a href="#boletim">12. Boletim de Urna</a></li>
+    <li><a href="#testes">13. Testes</a></li>
+    <li><a href="#explicacoes">14. Explicações do projeto</a></li>
+    <li><a href="#fontes">15. Fontes utilizadas</a></li>
+  </ol>
+  <button class="tema" id="botaoTema" type="button">Alternar tema claro/escuro</button>
+</nav>
+
+<main>
+
+<div class="cabecalho-academico" role="banner">
+  <div class="inst">
+    <strong>ITEAM</strong>
+    <span>Boa Vista/RR • 2026</span>
+  </div>
+  <dl>
+    <dt>Curso</dt><dd>Capacitação em Desenvolvimento Full Stack</dd>
+    <dt>Módulo</dt><dd>06 — Programação em Python (40 h • presencial • turno vespertino • 30/10 a 13/11/2026)</dd>
+    <dt>Professor</dt><dd>Esp. Ibukun Didier</dd>
+    <dt>Aluno</dt><dd>Ivonielson F.</dd>
+    <dt>Avaliação</dt><dd>A3 — Projeto Integrador: Urna Eletrônica • entrega em 13/11/2026 (Aula 10)</dd>
+  </dl>
+</div>
+
+<header class="capa">
+  <h1>Simulador de Urna Eletrônica</h1>
+  <p>Documentação completa do Projeto Integrador: arquitetura, regras de votação, conceitos de
+     Programação Orientada a Objetos e a referência de todas as classes e métodos.</p>
+  <div class="selos">
+    <span>Python 3.14</span><span>PySide6 (Qt)</span><span>100% orientado a objetos</span>
+    <span>19 testes automáticos</span><span>1º e 2º turno</span><span>Módulo 06 — Programação em Python</span>
+  </div>
+</header>
+
+<!-- ================================================================== 1 -->
+<section id="visao">
+<h2>1. Visão geral</h2>
+<p>O simulador reproduz uma <strong>seção eleitoral</strong> com os dois equipamentos que existem na
+eleição real, ligados por um cabo:</p>
+<div class="grade">
+  <div class="cartao">
+    <h4>🖥️ Terminal do Mesário</h4>
+    <p>Usado pelo mesário e pelo presidente da mesa. Conecta o cabo, abre a votação (emitindo a
+    <em>zerésima</em>), identifica o eleitor pelo título, confere a digital no leitor biométrico,
+    libera a urna e encerra a votação (emitindo o <em>Boletim de Urna</em>).</p>
+  </div>
+  <div class="cartao">
+    <h4>🗳️ Urna Eletrônica</h4>
+    <p>Usada pelo eleitor. Mostra a tela "SEU VOTO PARA", recebe o número pelo teclado
+    (0–9, BRANCO, CORRIGE, CONFIRMA) e percorre os cargos na ordem da eleição. No fim, aparece
+    <strong>FIM</strong> com o bipe característico.</p>
+  </div>
+</div>
+<div class="aviso verde">
+  <p><strong>Regra principal:</strong> a urna só aceita votos quando o terminal do mesário está
+  <strong>conectado</strong> e <strong>liberou</strong> o eleitor — pela <strong>digital</strong> ou, para quem não tem biometria, pela conferência do <strong>documento com foto</strong>.
+  Em qualquer outra situação, o teclado da urna fica bloqueado.</p>
+</div>
+<h3>Cargos (Eleições Gerais 2026)</h3>
+<div class="tabela"><table>
+<tr><th>Ordem</th><th>Cargo</th><th>Dígitos</th><th>Tipo</th><th>Observação</th></tr>
+<tr><td>1</td><td>Deputado Federal</td><td>4</td><td>Proporcional</td><td>Aceita voto de legenda</td></tr>
+<tr><td>2</td><td>Deputado Estadual</td><td>5</td><td>Proporcional</td><td>Aceita voto de legenda</td></tr>
+<tr><td>3–4</td><td>Senador</td><td>3</td><td>Majoritário</td><td>2 votos por eleitor (duas vagas), sem repetir candidato</td></tr>
+<tr><td>5</td><td>Governador</td><td>2</td><td>Majoritário</td><td>Mostra o vice com foto</td></tr>
+<tr><td>6</td><td>Presidente</td><td>2</td><td>Majoritário</td><td>Mostra o vice com foto</td></tr>
+</table></div>
+<p class="aviso laranja">Partidos, candidatos e eleitores são <strong>fictícios</strong>. Os documentos
+emitidos trazem a marca "SIMULAÇÃO – SEM VALOR OFICIAL".</p>
+</section>
+
+<!-- ================================================================== 2 -->
+<section id="executar">
+<h2>2. Como executar</h2>
+<p>O simulador usa a biblioteca gráfica <strong>PySide6</strong>. Para não misturá-la com o Python do sistema nem com outros
+projetos, ela é instalada dentro de um <strong>ambiente virtual (venv)</strong> próprio do simulador.</p>
+
+<div class="passo"><span class="num">1</span><h4>Criar o ambiente virtual (uma vez só)</h4></div>
+<pre><code><span class="c"># dentro da pasta projeto final/simulador_urna</span>
+python3 -m venv venv          <span class="c"># no Windows: python -m venv venv</span></code></pre>
+
+<div class="passo"><span class="num">2</span><h4>Ativar o ambiente (a cada terminal novo)</h4></div>
+<pre><code>source venv/bin/activate          <span class="c"># Linux / macOS (bash, zsh)</span>
+source venv/bin/activate.fish     <span class="c"># Linux (fish)</span>
+venv\Scripts\activate             <span class="c"># Windows (cmd)</span>
+venv\Scripts\Activate.ps1         <span class="c"># Windows (PowerShell)</span></code></pre>
+<p>Com a venv ativa, o terminal mostra <code>(venv)</code> no início da linha, e os comandos <code>python</code> e <code>pip</code>
+passam a usar o Python do ambiente.</p>
+
+<div class="passo"><span class="num">3</span><h4>Instalar a biblioteca gráfica (uma vez só)</h4></div>
+<pre><code>pip install -r requirements.txt   <span class="c"># instala o PySide6 dentro da venv</span></code></pre>
+
+<div class="passo"><span class="num">4</span><h4>Executar</h4></div>
+<pre><code>python main.py          <span class="c"># com sons</span>
+python main.py --mudo   <span class="c"># sem sons</span>
+python main.py --nova   <span class="c"># apaga a memória da urna e começa uma votação nova</span>
+python main.py --eleicao dados/eleicao_2turno.json   <span class="c"># 2º turno (só Presidente)</span>
+
+<span class="c"># testes automáticos (19 testes; não abrem janela)</span>
+python -m unittest discover -s testes -t .
+
+<span class="c"># ao terminar, sair do ambiente virtual</span>
+deactivate</code></pre>
+
+<div class="aviso"><p><strong>Por que usar uma venv?</strong> Ela <strong>isola</strong> as bibliotecas do projeto: o PySide6 fica só na pasta
+<code>venv/</code>, sem alterar o Python do sistema e sem conflitar com versões usadas por outros projetos. Quem receber o projeto
+recria o mesmo ambiente com <code>requirements.txt</code>. Por isso a pasta <code>venv/</code> <strong>não deve ser entregue</strong>
+(é grande e depende do computador): basta enviar o código e o <code>requirements.txt</code>.</p></div>
+<h3>Roteiro de demonstração</h3>
+<ol>
+  <li>No terminal, clique em <strong>Conectar cabo</strong>: o LED "Terminal conectado" acende na urna.</li>
+  <li>Clique em <strong>Abrir votação</strong>, digite a senha <code>1234</code> no <strong>teclado do terminal</strong> e aperte <strong>CONFIRMA</strong>: a zerésima é emitida e salva em <code>boletins/</code>.</li>
+  <li>Clique num eleitor do <strong>caderno de votação</strong> (ou digite os 12 dígitos) e aperte <strong>CONFIRMA</strong>.</li>
+  <li>Confira o nome, aperte <strong>CONFIRMA</strong> e clique no <strong>leitor biométrico</strong>.</li>
+  <li>Na urna, vote nos 6 cargos. Teclado do computador: <code>0-9</code>, <code>Enter</code> = CONFIRMA,
+      <code>Backspace</code> = CORRIGE, <code>B</code> = BRANCO.</li>
+  <li>Aparece <strong>FIM</strong> e o terminal mostra "VOTO CONCLUÍDO".</li>
+  <li>Clique em <strong>Encerrar votação</strong>, digite a senha <code>1234</code> no <strong>teclado do terminal</strong> e aperte <strong>CONFIRMA</strong>: o Boletim de Urna é emitido em <code>.txt</code> e <code>.pdf</code>.</li>
+</ol>
+<p><strong>Para mostrar os bloqueios:</strong> aperte teclas na urna sem liberação; desconecte o cabo antes de
+liberar; tente liberar quem já votou. <strong>Situações especiais:</strong> libere <em>Pedro</em> ou <em>Luana</em> (sem biometria: conferência do documento), use <strong>Interromper votação do eleitor</strong> (desistência) e <strong>Simular queda de energia</strong>.</p>
+</section>
+
+<!-- ================================================================== 3 -->
+<section id="manual">
+<h2>3. Manual de uso (passo a passo com as telas)</h2>
+<p>Todas as imagens abaixo foram capturadas do <strong>próprio simulador em funcionamento</strong>. Clique numa imagem para abri-la em tamanho real. O <strong>Terminal do Mesário</strong> fica à esquerda da tela e a <strong>Urna</strong> à direita.</p>
+<h3 id="manual-preparar">3.1 Preparar a seção (presidente da mesa)</h3>
+<div class="passo"><span class="num">1</span><h4>Abrir o programa</h4></div>
+<p>Rode <code>python main.py</code>. As duas janelas abrem <strong>desconectadas</strong>: os LEDs estão apagados, a urna mostra "AGUARDANDO CONEXÃO" e o display do terminal diz "VOTAÇÃO NÃO INICIADA".</p>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_01_desconectado.png" target="_blank" rel="noopener"><img src="img/terminal_01_desconectado.png" alt="Terminal do mesário" loading="lazy"></a><figcaption><strong>Terminal do mesário.</strong> Painel do presidente com o botão <em>Conectar cabo</em>, caderno de votação e log.</figcaption></figure>
+<figure class="tela"><a href="img/urna_01_aguardando_conexao.png" target="_blank" rel="noopener"><img src="img/urna_01_aguardando_conexao.png" alt="Urna" loading="lazy"></a><figcaption><strong>Urna.</strong> Tela escura até o cabo ser conectado.</figcaption></figure>
+</div>
+<div class="passo"><span class="num">2</span><h4>Conectar o cabo</h4></div>
+<p>No painel <em>Presidente da mesa</em>, clique em <strong>Conectar cabo</strong>. O indicador fica verde, o LED "URNA CONECTADA" acende no terminal e "TERMINAL CONECTADO" acende na urna, que passa a mostrar "URNA PREPARADA".</p>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_02_conectado.png" target="_blank" rel="noopener"><img src="img/terminal_02_conectado.png" alt="Cabo conectado" loading="lazy"></a><figcaption><strong>Cabo conectado.</strong> Agora o botão <em>Abrir votação</em> fica disponível.</figcaption></figure>
+<figure class="tela"><a href="img/urna_02_preparada.png" target="_blank" rel="noopener"><img src="img/urna_02_preparada.png" alt="Urna preparada" loading="lazy"></a><figcaption><strong>Urna preparada.</strong> Aguardando a abertura pelo presidente da mesa.</figcaption></figure>
+</div>
+<div class="passo"><span class="num">3</span><h4>Abrir a votação e emitir a zerésima</h4></div>
+<p>Clique em <strong>Abrir votação (emitir zerésima)</strong>. O <strong>visor do terminal</strong> pede a senha do presidente da mesa: digite-a no teclado do terminal (aparece como <code>****</code>) e aperte <strong>CONFIRMA</strong> (ou <strong>CORRIGE</strong> para sair). A urna imprime a <strong>zerésima</strong> (todos os candidatos com 0 votos), salva em <code>boletins/</code> como <code>.txt</code> e <code>.pdf</code>, e passa a aguardar a liberação do eleitor. Senha errada mostra "SENHA INCORRETA / ABERTURA NÃO AUTORIZADA" e a votação continua fechada.</p>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_02b_senha_abertura.png" target="_blank" rel="noopener"><img src="img/terminal_02b_senha_abertura.png" alt="Senha no visor" loading="lazy"></a><figcaption><strong>Senha no visor.</strong> Modo SENHA para abrir a votação: cada dígito aparece como *.</figcaption></figure>
+<figure class="tela"><a href="img/dialogo_zeresima.png" target="_blank" rel="noopener"><img src="img/dialogo_zeresima.png" alt="Zerésima" loading="lazy"></a><figcaption><strong>Zerésima.</strong> Prova de que a urna começa vazia. O aviso verde confirma o código de verificação.</figcaption></figure>
+<figure class="tela"><a href="img/urna_03_aguardando_eleitor.png" target="_blank" rel="noopener"><img src="img/urna_03_aguardando_eleitor.png" alt="Urna aguardando" loading="lazy"></a><figcaption><strong>Urna aguardando.</strong> Votação aberta: LED &quot;VOTAÇÃO ABERTA&quot; aceso; relógio e seção no rodapé.</figcaption></figure>
+</div>
+<div class="passo"><span class="num">4</span><h4>Se o eleitor apertar teclas antes da liberação</h4></div>
+<p>A urna <strong>bloqueia</strong>: aparece a faixa vermelha "URNA BLOQUEADA — Aguarde a liberação pelo mesário", com um bipe de erro.</p>
+<div class="telas">
+<figure class="tela"><a href="img/urna_04_bloqueada.png" target="_blank" rel="noopener"><img src="img/urna_04_bloqueada.png" alt="Urna bloqueada" loading="lazy"></a><figcaption><strong>Urna bloqueada.</strong> Nenhuma tecla é aceita sem a liberação do mesário.</figcaption></figure>
+</div>
+<h3 id="manual-liberar">3.2 Identificar e liberar o eleitor (mesário)</h3>
+<div class="passo"><span class="num">5</span><h4>Digitar o título do eleitor</h4></div>
+<p>Digite os <strong>12 dígitos</strong> do título no teclado do terminal (ou do computador), ou <strong>clique no eleitor</strong> no caderno de votação. Aperte <strong>CONFIRMA</strong>.</p>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_05_titulo_digitado.png" target="_blank" rel="noopener"><img src="img/terminal_05_titulo_digitado.png" alt="Título digitado" loading="lazy"></a><figcaption><strong>Título digitado.</strong> O display mostra o título em grupos de 4 dígitos.</figcaption></figure>
+</div>
+<div class="passo"><span class="num">6</span><h4>Conferir o nome</h4></div>
+<p>O terminal mostra o nome do eleitor. Confira com o documento e aperte <strong>CONFIRMA</strong> (ou <strong>CORRIGE</strong> para cancelar).</p>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_06_confirmar_eleitor.png" target="_blank" rel="noopener"><img src="img/terminal_06_confirmar_eleitor.png" alt="Confirmar eleitor" loading="lazy"></a><figcaption><strong>Confirmar eleitor.</strong> &quot;CONFIRMA=BIOMETRIA&quot;: o próximo passo é a digital.</figcaption></figure>
+</div>
+<div class="passo"><span class="num">7</span><h4>Conferir a digital no leitor biométrico</h4></div>
+<p>O leitor <strong>pisca em azul</strong> ("TOQUE AQUI"). Clique nele para simular o dedo do eleitor; a leitura leva cerca de 1 segundo.</p>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_07_biometria.png" target="_blank" rel="noopener"><img src="img/terminal_07_biometria.png" alt="Aguardando a digital" loading="lazy"></a><figcaption><strong>Aguardando a digital.</strong> Display: &quot;POSICIONE O DEDO NO LEITOR BIOMÉTRICO&quot;.</figcaption></figure>
+<figure class="tela"><a href="img/terminal_08_lendo_digital.png" target="_blank" rel="noopener"><img src="img/terminal_08_lendo_digital.png" alt="Lendo a digital" loading="lazy"></a><figcaption><strong>Lendo a digital.</strong> Linha de varredura no leitor; &quot;NÃO RETIRE O DEDO&quot;.</figcaption></figure>
+</div>
+<div class="aviso"><p><strong>Eleitor sem biometria cadastrada</strong> (Pedro e Luana nos dados de exemplo): em vez do leitor, o visor pede ao mesário que <strong>confira o documento com foto</strong>. Conferido, aperte <strong>CONFIRMA</strong> e a urna é liberada.</p></div>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_11_sem_biometria.png" target="_blank" rel="noopener"><img src="img/terminal_11_sem_biometria.png" alt="Sem biometria" loading="lazy"></a><figcaption><strong>Sem biometria.</strong> &quot;CONFIRA DOC. COM FOTO&quot; e &quot;CONFIRMA=LIBERAR&quot;: o leitor biométrico não é usado.</figcaption></figure>
+</div>
+
+<div class="passo"><span class="num">8</span><h4>Urna liberada</h4></div>
+<p>Digital conferida: o terminal mostra "URNA LIBERADA / ELEITOR VOTANDO..." e o LED "ELEITOR LIBERADO" acende na urna, que abre a tela do primeiro cargo.</p>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_09_eleitor_votando.png" target="_blank" rel="noopener"><img src="img/terminal_09_eleitor_votando.png" alt="Terminal" loading="lazy"></a><figcaption><strong>Terminal.</strong> No caderno, o eleitor aparece como &quot;Votando…&quot;.</figcaption></figure>
+<figure class="tela"><a href="img/urna_05_inicio_votacao.png" target="_blank" rel="noopener"><img src="img/urna_05_inicio_votacao.png" alt="Urna" loading="lazy"></a><figcaption><strong>Urna.</strong> Primeiro cargo: Deputado Federal, com o cursor piscando na 1ª caixa.</figcaption></figure>
+</div>
+<h3 id="manual-votar">3.3 Votar (eleitor)</h3>
+<div class="tabela"><table><tr><th>Tecla da urna</th><th>Teclado do computador</th><th>O que faz</th></tr><tr><td>0 a 9</td><td>0 a 9</td><td>Digita o número do candidato (ou só os 2 do partido, para deputado)</td></tr><tr><td><strong>CONFIRMA</strong> (verde)</td><td>Enter</td><td>Confirma o voto do cargo e passa para o próximo</td></tr><tr><td><strong>CORRIGE</strong> (laranja)</td><td>Backspace</td><td>Apaga e reinicia o voto do cargo atual</td></tr><tr><td><strong>BRANCO</strong> (branca)</td><td>B</td><td>Vota em branco (só com o campo vazio)</td></tr></table></div>
+<div class="telas">
+<figure class="tela"><a href="img/urna_06_deputado_federal.png" target="_blank" rel="noopener"><img src="img/urna_06_deputado_federal.png" alt="Voto nominal" loading="lazy"></a><figcaption><strong>Voto nominal.</strong> Número completo de um candidato: aparecem nome, partido e foto. Aperte CONFIRMA.</figcaption></figure>
+<figure class="tela"><a href="img/urna_07_legenda.png" target="_blank" rel="noopener"><img src="img/urna_07_legenda.png" alt="Voto de legenda" loading="lazy"></a><figcaption><strong>Voto de legenda.</strong> Para deputado, digitar só os 2 dígitos do partido e confirmar é votar no partido.</figcaption></figure>
+<figure class="tela"><a href="img/urna_08_legenda_candidato_inexistente.png" target="_blank" rel="noopener"><img src="img/urna_08_legenda_candidato_inexistente.png" alt="Candidato inexistente" loading="lazy"></a><figcaption><strong>Candidato inexistente.</strong> Número completo que não existe, mas com partido válido, vira voto de legenda.</figcaption></figure>
+<figure class="tela"><a href="img/urna_09_senador_1voto.png" target="_blank" rel="noopener"><img src="img/urna_09_senador_1voto.png" alt="Senador (1º voto)" loading="lazy"></a><figcaption><strong>Senador (1º voto).</strong> Duas vagas: o eleitor vota duas vezes. Aparecem os suplentes.</figcaption></figure>
+<figure class="tela"><a href="img/urna_10_senador_repetido.png" target="_blank" rel="noopener"><img src="img/urna_10_senador_repetido.png" alt="Senador repetido" loading="lazy"></a><figcaption><strong>Senador repetido.</strong> No 2º voto, o mesmo candidato não é aceito. Aperte CORRIGE.</figcaption></figure>
+<figure class="tela"><a href="img/urna_11_branco.png" target="_blank" rel="noopener"><img src="img/urna_11_branco.png" alt="Voto em branco" loading="lazy"></a><figcaption><strong>Voto em branco.</strong> Tecla BRANCO com o campo vazio; depois, CONFIRMA.</figcaption></figure>
+<figure class="tela"><a href="img/urna_12_governador.png" target="_blank" rel="noopener"><img src="img/urna_12_governador.png" alt="Governador" loading="lazy"></a><figcaption><strong>Governador.</strong> Cargos com vice mostram também a foto do vice.</figcaption></figure>
+<figure class="tela"><a href="img/urna_13_nulo.png" target="_blank" rel="noopener"><img src="img/urna_13_nulo.png" alt="Voto nulo" loading="lazy"></a><figcaption><strong>Voto nulo.</strong> Número que não existe: &quot;NÚMERO ERRADO&quot; e &quot;VOTO NULO&quot; piscando. Pode confirmar ou corrigir.</figcaption></figure>
+<figure class="tela"><a href="img/urna_14_fim.png" target="_blank" rel="noopener"><img src="img/urna_14_fim.png" alt="FIM" loading="lazy"></a><figcaption><strong>FIM.</strong> Depois do último cargo (Presidente) aparece FIM com o bipe característico.</figcaption></figure>
+<figure class="tela"><a href="img/terminal_10_voto_concluido.png" target="_blank" rel="noopener"><img src="img/terminal_10_voto_concluido.png" alt="Voto concluído" loading="lazy"></a><figcaption><strong>Voto concluído.</strong> O terminal avisa e o caderno marca &quot;✔ Votou&quot;. Pronto para o próximo eleitor.</figcaption></figure>
+</div>
+<h3 id="manual-bloqueios">3.4 Mensagens de bloqueio no terminal</h3>
+<p>Quando um eleitor não pode ser liberado, o display mostra o motivo com um bipe de erro e volta à tela do título depois de alguns segundos (ou ao apertar CORRIGE).</p>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_12_ja_votou.png" target="_blank" rel="noopener"><img src="img/terminal_12_ja_votou.png" alt="Eleitor já votou" loading="lazy"></a><figcaption><strong>Eleitor já votou.</strong> Impede o voto duplo.</figcaption></figure>
+<figure class="tela"><a href="img/terminal_13_urna_desconectada.png" target="_blank" rel="noopener"><img src="img/terminal_13_urna_desconectada.png" alt="Urna não conectada" loading="lazy"></a><figcaption><strong>Urna não conectada.</strong> Cabo desconectado: nenhum eleitor é liberado.</figcaption></figure>
+<figure class="tela"><a href="img/urna_15_terminal_desconectado.png" target="_blank" rel="noopener"><img src="img/urna_15_terminal_desconectado.png" alt="Aviso na urna" loading="lazy"></a><figcaption><strong>Aviso na urna.</strong> A urna mostra a faixa &quot;TERMINAL DO MESÁRIO DESCONECTADO&quot;.</figcaption></figure>
+<figure class="tela"><a href="img/terminal_14_urna_ocupada.png" target="_blank" rel="noopener"><img src="img/terminal_14_urna_ocupada.png" alt="Urna ocupada" loading="lazy"></a><figcaption><strong>Urna ocupada.</strong> Enquanto um eleitor vota, nenhum outro pode ser liberado.</figcaption></figure>
+</div>
+<h3 id="manual-desistencia">3.5 Eleitor desistiu: interromper a votação</h3>
+<p>Se o eleitor <strong>desistir ou sair da cabine</strong> sem terminar, o presidente da mesa clica em <strong>Interromper votação do eleitor (desistência)</strong> — o botão só fica ativo com alguém votando — e digita a senha no visor. A urna aplica a regra:</p>
+<ul><li><strong>Nenhum voto confirmado:</strong> a votação é <strong>suspensa</strong>; o eleitor não consta como votante e pode voltar depois.</li>
+<li><strong>Pelo menos um voto confirmado:</strong> os confirmados valem, os cargos que faltavam viram <strong>votos nulos</strong> e o eleitor consta como <strong>votou</strong>.</li></ul>
+<div class="telas">
+<figure class="tela"><a href="img/terminal_18_senha_interromper.png" target="_blank" rel="noopener"><img src="img/terminal_18_senha_interromper.png" alt="Senha para interromper" loading="lazy"></a><figcaption><strong>Senha para interromper.</strong> Mesmo modo SENHA da abertura e do encerramento.</figcaption></figure>
+<figure class="tela"><a href="img/terminal_19_interrompida.png" target="_blank" rel="noopener"><img src="img/terminal_19_interrompida.png" alt="Votação interrompida" loading="lazy"></a><figcaption><strong>Votação interrompida.</strong> Rafael confirmou 2 votos: os 4 restantes viraram nulos e ele &quot;CONSTA COMO VOTOU&quot;.</figcaption></figure>
+<figure class="tela"><a href="img/urna_17_interrompida.png" target="_blank" rel="noopener"><img src="img/urna_17_interrompida.png" alt="Na urna" loading="lazy"></a><figcaption><strong>Na urna.</strong> Faixa &quot;VOTAÇÃO INTERROMPIDA pelo presidente da mesa&quot;.</figcaption></figure>
+</div>
+
+<h3 id="manual-energia">3.6 Queda de energia</h3>
+<p>A urna grava seu estado na <strong>memória interna</strong> (arquivo em <code>memoria/</code>) a cada evento. Clique em <strong>⚡ Simular queda de energia</strong>: as duas telas apagam por alguns segundos e o programa <strong>joga fora todos os objetos</strong>. Quando a energia volta, tudo é recriado a partir do JSON da eleição e da memória: <strong>quem já votou continua marcado no caderno</strong>, os votos continuam contados e o log, a zerésima e o cabo são recuperados. Se alguém estava votando, vale a mesma regra da interrupção.</p>
+<div class="telas">
+<figure class="tela"><a href="img/urna_18_sem_energia.png" target="_blank" rel="noopener"><img src="img/urna_18_sem_energia.png" alt="Sem energia" loading="lazy"></a><figcaption><strong>Sem energia.</strong> Tela apagada, LEDs desligados e teclado sem resposta.</figcaption></figure>
+<figure class="tela"><a href="img/terminal_20_sem_energia.png" target="_blank" rel="noopener"><img src="img/terminal_20_sem_energia.png" alt="Terminal sem energia" loading="lazy"></a><figcaption><strong>Terminal sem energia.</strong> Display e controles desligados.</figcaption></figure>
+<figure class="tela"><a href="img/urna_19_energia_restabelecida.png" target="_blank" rel="noopener"><img src="img/urna_19_energia_restabelecida.png" alt="Energia restabelecida" loading="lazy"></a><figcaption><strong>Energia restabelecida.</strong> &quot;Dados recuperados da memória da urna&quot;.</figcaption></figure>
+<figure class="tela"><a href="img/terminal_21_energia_restabelecida.png" target="_blank" rel="noopener"><img src="img/terminal_21_energia_restabelecida.png" alt="Dados recuperados" loading="lazy"></a><figcaption><strong>Dados recuperados.</strong> Comparecimento mantido (4/8) e &quot;VOTO PENDENTE CONCLUÍDO&quot;: Francisco tinha confirmado 1 voto.</figcaption></figure>
+</div>
+<p>Ao abrir o programa de novo com uma votação gravada, ele pergunta se deve <strong>continuar</strong> essa votação ou começar uma <strong>nova</strong>. Para começar do zero direto: <code>python main.py --nova</code>.</p>
+<h3 id="manual-encerrar">3.7 Encerrar a votação e emitir o Boletim de Urna</h3>
+<div class="passo"><span class="num">9</span><h4>Encerrar com a senha do presidente</h4></div>
+<p>Com a urna livre (ninguém votando), clique em <strong>Encerrar votação (emitir BU)</strong>. O <strong>visor do terminal</strong> pede a senha do presidente da mesa: digite-a no teclado do terminal (ou do computador). Ela aparece como <code>****</code>. Aperte <strong>CONFIRMA</strong> para encerrar ou <strong>CORRIGE</strong> para sair sem encerrar. Senha errada mostra "SENHA INCORRETA" e a tentativa fica registrada no log. A senha de exemplo é <code>1234</code>.</p>
+<div class="telas duas">
+<figure class="tela"><a href="img/terminal_16_senha_presidente.png" target="_blank" rel="noopener"><img src="img/terminal_16_senha_presidente.png" alt="Senha no visor" loading="lazy"></a><figcaption><strong>Senha no visor.</strong> Modo SENHA do terminal: cada dígito aparece como *.</figcaption></figure>
+<figure class="tela"><a href="img/terminal_17_senha_incorreta.png" target="_blank" rel="noopener"><img src="img/terminal_17_senha_incorreta.png" alt="Senha incorreta" loading="lazy"></a><figcaption><strong>Senha incorreta.</strong> O encerramento não é autorizado e a tentativa vai para o log.</figcaption></figure>
+<figure class="tela"><a href="img/terminal_15_encerrada.png" target="_blank" rel="noopener"><img src="img/terminal_15_encerrada.png" alt="Terminal encerrado" loading="lazy"></a><figcaption><strong>Terminal encerrado.</strong> Display: &quot;VOTAÇÃO ENCERRADA / BU EMITIDO&quot;. Log completo da urna.</figcaption></figure>
+<figure class="tela"><a href="img/urna_16_encerrada.png" target="_blank" rel="noopener"><img src="img/urna_16_encerrada.png" alt="Urna encerrada" loading="lazy"></a><figcaption><strong>Urna encerrada.</strong> Mostra o horário e o comparecimento.</figcaption></figure>
+</div>
+<div class="passo"><span class="num">10</span><h4>Conferir o Boletim de Urna</h4></div>
+<p>O BU aparece como uma bobina impressa e é salvo em <code>boletins/</code> (<code>.txt</code> e <code>.pdf</code> de 80 mm). Use <strong>Abrir PDF</strong> ou <strong>Abrir pasta</strong>. Depois, o botão <strong>Ver documentos emitidos</strong> mostra de novo a zerésima e o BU.</p>
+<div class="telas">
+<figure class="tela"><a href="img/dialogo_boletim.png" target="_blank" rel="noopener"><img src="img/dialogo_boletim.png" alt="Janela do BU" loading="lazy"></a><figcaption><strong>Janela do BU.</strong> &quot;✔ código de verificação confere&quot;: o documento não foi alterado.</figcaption></figure>
+<figure class="tela"><div class="bobina"><a href="img/boletim_pdf.png" target="_blank" rel="noopener"><img src="img/boletim_pdf.png" alt="PDF do Boletim de Urna" loading="lazy"></a></div><figcaption><strong>PDF do BU.</strong> Formato de bobina de impressora térmica (role para ver tudo).</figcaption></figure>
+</div>
+<h3 id="manual-2turno">3.8 Segundo turno (só Presidente)</h3>
+<p>Para simular o 2º turno, abra o programa com o arquivo da eleição do 2º turno:</p>
+<pre><code>python main.py --eleicao dados/eleicao_2turno.json</code></pre>
+<p>O fluxo é o mesmo do 1º turno (cabo, abertura com senha, liberação, encerramento), mas a urna tem um <strong>único cargo</strong>: o eleitor digita o número, aperta CONFIRMA uma vez e já aparece <strong>FIM</strong>. O turno aparece no rodapé da tela da urna e no título das janelas, e a memória do 2º turno é <strong>separada</strong> da do 1º: quem votou no 1º turno aparece como "Aguardando" no caderno do 2º.</p>
+<div class="telas">
+<figure class="tela"><a href="img/urna_20_segundo_turno_espera.png" target="_blank" rel="noopener"><img src="img/urna_20_segundo_turno_espera.png" alt="Urna no 2º turno" loading="lazy"></a><figcaption><strong>Urna no 2º turno.</strong> Rodapé: &quot;… Boa Vista/RR • 2º turno&quot;.</figcaption></figure>
+<figure class="tela"><a href="img/urna_21_segundo_turno_presidente.png" target="_blank" rel="noopener"><img src="img/urna_21_segundo_turno_presidente.png" alt="Voto para Presidente" loading="lazy"></a><figcaption><strong>Voto para Presidente.</strong> Único cargo do 2º turno, com os dois candidatos mais votados no 1º.</figcaption></figure>
+</div>
+</section>
+
+<!-- ================================================================== 4 -->
+<section id="arquitetura">
+<h2>4. Arquitetura</h2>
+<p>O código é dividido em <strong>duas camadas</strong> que não se misturam:</p>
+<div class="grade">
+  <div class="cartao"><h4>📦 <code>modelo/</code> — as regras</h4>
+  <p>Python puro. Sabe o que é um eleitor, um voto, uma urna aberta ou encerrada. <strong>Não importa nada do
+  PySide6</strong>: não sabe desenhar, não tem <code>print</code> nem <code>input</code>.</p></div>
+  <div class="cartao"><h4>🎨 <code>interface/</code> — o visual</h4>
+  <p>PySide6 (Qt). Só desenha e repassa as teclas para o modelo. Não decide se um voto é nulo ou se o
+  eleitor pode votar: pergunta ao modelo.</p></div>
+</div>
+<figure>
+<svg viewBox="0 0 900 430" role="img" aria-label="Diagrama de camadas do simulador">
+  <defs><marker id="pt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: var(--suave)"/></marker></defs>
+  <rect class="caixa" x="350" y="14" width="200" height="54" rx="10"/>
+  <text class="tit" x="450" y="38" text-anchor="middle">main.py</text>
+  <text class="peq" x="450" y="57" text-anchor="middle">classe Aplicacao</text>
+
+  <rect class="caixa interface" x="20" y="120" width="330" height="190" rx="12"/>
+  <text class="tit" x="185" y="148" text-anchor="middle">interface/ (PySide6)</text>
+  <text class="peq" x="40" y="180">JanelaTerminal · LeitorBiometrico · Led</text>
+  <text class="peq" x="40" y="204">JanelaUrna · TelaUrna</text>
+  <text class="peq" x="40" y="228">DialogoDocumento</text>
+  <text class="peq" x="40" y="252">ExportadorDocumento</text>
+  <text class="peq" x="40" y="276">Pincel(QPainter) · Sons · Creditos</text>
+
+  <rect class="caixa modelo" x="550" y="120" width="330" height="190" rx="12"/>
+  <text class="tit" x="715" y="148" text-anchor="middle">modelo/ (Python puro)</text>
+  <text class="peq" x="570" y="180">Urna · SessaoVotacao · TerminalMesario</text>
+  <text class="peq" x="570" y="204">Eleicao · Secao · Cargo · Previa</text>
+  <text class="peq" x="570" y="228">Candidato · Vice · Partido</text>
+  <text class="peq" x="570" y="252">Pessoa → Eleitor, Mesario</text>
+  <text class="peq" x="570" y="276">ImpressoraUrna · Documento · MemoriaUrna</text>
+  <text class="peq" x="570" y="300">CarregadorEleicao · ErroUrna (+10)</text>
+
+  <rect class="caixa dados" x="605" y="366" width="220" height="50" rx="10"/>
+  <text class="tit" x="715" y="396" text-anchor="middle">dados/eleicao.json</text>
+  <rect class="caixa dados" x="75" y="366" width="220" height="50" rx="10"/>
+  <text class="tit" x="185" y="396" text-anchor="middle">boletins/ (.txt e .pdf)</text>
+
+  <path class="seta" d="M395 68 L250 118" marker-end="url(#pt)"/>
+  <path class="seta" d="M505 68 L650 118" marker-end="url(#pt)"/>
+  <text class="rot" x="232" y="88">cria as janelas</text>
+  <text class="rot" x="590" y="88">cria o modelo</text>
+  <path class="seta" d="M352 190 L548 190" marker-end="url(#pt)"/>
+  <text class="rot" x="450" y="182" text-anchor="middle">chama métodos</text>
+  <path class="seta" d="M548 240 L352 240" marker-end="url(#pt)"/>
+  <text class="rot" x="450" y="232" text-anchor="middle">avisa os ouvintes</text>
+  <text class="rot" x="450" y="258" text-anchor="middle">(evento)</text>
+  <path class="seta" d="M715 364 L715 312" marker-end="url(#pt)"/>
+  <text class="rot" x="723" y="342">CarregadorEleicao lê</text>
+  <path class="seta" d="M185 312 L185 364" marker-end="url(#pt)"/>
+  <text class="rot" x="193" y="342">ExportadorDocumento grava</text>
+</svg>
+<figcaption>A interface conhece o modelo; o modelo não conhece a interface (só avisa "ouvintes").</figcaption>
+</figure>
+
+<h3>Estrutura de pastas</h3>
+<pre><code>simulador_urna/
+├── main.py                   <span class="c">Aplicacao: cria o modelo, as duas janelas e liga uma à outra</span>
+├── requirements.txt          <span class="c">PySide6</span>
+├── dados/eleicao.json        <span class="c">1º turno: seção, partidos, cargos, candidatos, eleitores e senha</span>
+├── dados/eleicao_2turno.json <span class="c">2º turno: só Presidente, com os dois candidatos</span>
+├── memoria/                  <span class="c">memória da urna (criada ao rodar; sobrevive à queda de energia)</span>
+├── modelo/                   <span class="c">REGRAS (Python puro)</span>
+│   ├── erros.py              <span class="c">ErroUrna e 10 exceções específicas</span>
+│   ├── partido.py            <span class="c">Partido</span>
+│   ├── candidato.py          <span class="c">Candidato e Vice</span>
+│   ├── cargo.py              <span class="c">Cargo, Previa e TipoVoto</span>
+│   ├── pessoas.py            <span class="c">Pessoa → Eleitor, Mesario</span>
+│   ├── eleicao.py            <span class="c">Eleicao e Secao</span>
+│   ├── urna.py               <span class="c">Urna, SessaoVotacao, EstadoUrna e ResultadoInterrupcao</span>
+│   ├── memoria.py            <span class="c">MemoriaUrna (memória interna gravada em disco)</span>
+│   ├── terminal.py           <span class="c">TerminalMesario</span>
+│   ├── boletim.py            <span class="c">ImpressoraUrna e Documento</span>
+│   └── carregador.py         <span class="c">CarregadorEleicao</span>
+├── interface/                <span class="c">VISUAL (PySide6)</span>
+│   ├── janela_urna.py        <span class="c">TelaUrna e JanelaUrna</span>
+│   ├── janela_terminal.py    <span class="c">JanelaTerminal, LeitorBiometrico, Led e Modo</span>
+│   ├── dialogo_documento.py  <span class="c">DialogoDocumento</span>
+│   ├── exportar.py           <span class="c">ExportadorDocumento</span>
+│   ├── desenho.py            <span class="c">Pincel (herda de QPainter)</span>
+│   ├── creditos.py           <span class="c">Creditos (mensagem do rodapé das janelas)</span>
+│   └── sons.py               <span class="c">Sons</span>
+├── testes/                   <span class="c">19 testes: regras (test_modelo) e queda de energia (test_memoria)</span>
+└── docs/index.html           <span class="c">esta documentação</span></code></pre>
+
+<div class="aviso"><p><strong>Por que separar?</strong> (1) Dá para <strong>testar a urna inteira sem abrir
+janelas</strong>; (2) dá para trocar a interface (texto, web, outra biblioteca) sem mexer nas regras;
+(3) cada classe tem <strong>uma responsabilidade</strong> — critério "Clareza" da rubrica da Aula 10.</p></div>
+</section>
+
+<!-- ================================================================== 4 -->
+<section id="fluxo">
+<h2>5. Fluxo de uma votação</h2>
+<p>Do título digitado pelo mesário até o voto contado — quem chama quem:</p>
+<figure>
+<svg viewBox="0 0 860 520" role="img" aria-label="Diagrama de sequência da liberação e do voto">
+  <defs><marker id="pt2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: var(--suave)"/></marker></defs>
+  <g class="peq">
+    <rect class="caixa interface" x="10" y="10" width="140" height="40" rx="8"/><text x="80" y="35" text-anchor="middle">JanelaTerminal</text>
+    <rect class="caixa modelo" x="185" y="10" width="150" height="40" rx="8"/><text x="260" y="35" text-anchor="middle">TerminalMesario</text>
+    <rect class="caixa modelo" x="370" y="10" width="110" height="40" rx="8"/><text x="425" y="35" text-anchor="middle">Urna</text>
+    <rect class="caixa modelo" x="515" y="10" width="150" height="40" rx="8"/><text x="590" y="35" text-anchor="middle">SessaoVotacao</text>
+    <rect class="caixa modelo" x="700" y="10" width="70" height="40" rx="8"/><text x="735" y="35" text-anchor="middle">Cargo</text>
+    <rect class="caixa interface" x="790" y="10" width="64" height="40" rx="8"/><text x="822" y="35" text-anchor="middle">TelaUrna</text>
+  </g>
+  <g style="stroke: var(--linha); stroke-dasharray: 4 4;">
+    <line x1="80" y1="50" x2="80" y2="510"/><line x1="260" y1="50" x2="260" y2="510"/>
+    <line x1="425" y1="50" x2="425" y2="510"/><line x1="590" y1="50" x2="590" y2="510"/>
+    <line x1="735" y1="50" x2="735" y2="510"/><line x1="822" y1="50" x2="822" y2="510"/>
+  </g>
+  <g class="rot">
+    <path class="seta" d="M80 80 L258 80" marker-end="url(#pt2)"/><text x="90" y="74">consultar(titulo)</text>
+    <path class="seta" d="M258 104 L82 104" marker-end="url(#pt2)"/><text x="90" y="98">Eleitor (ou exceção)</text>
+    <path class="seta" d="M80 136 L258 136" marker-end="url(#pt2)"/><text x="90" y="130">verificar_urna_pronta()</text>
+    <path class="seta" d="M260 150 L423 150" marker-end="url(#pt2)"/><text x="268" y="144">verificar_disponivel()</text>
+    <text x="16" y="182">… mesário confere a digital …</text>
+    <path class="seta" d="M80 204 L258 204" marker-end="url(#pt2)"/><text x="90" y="198">liberar(eleitor, True)</text>
+    <path class="seta" d="M260 222 L423 222" marker-end="url(#pt2)"/><text x="268" y="216">habilitar(eleitor)</text>
+    <path class="seta" d="M425 240 L588 240" marker-end="url(#pt2)"/><text x="433" y="234">cria SessaoVotacao</text>
+    <path class="seta" d="M425 262 L820 262" marker-end="url(#pt2)"/><text x="610" y="256">evento "liberada"</text>
+    <path class="seta" d="M820 300 L427 300" marker-end="url(#pt2)"/><text x="610" y="294">digitar("2") …</text>
+    <path class="seta" d="M425 316 L588 316" marker-end="url(#pt2)"/><text x="433" y="330">digitar</text>
+    <path class="seta" d="M820 356 L427 356" marker-end="url(#pt2)"/><text x="610" y="350">confirmar()</text>
+    <path class="seta" d="M425 374 L588 374" marker-end="url(#pt2)"/><text x="433" y="368">confirmar()</text>
+    <path class="seta" d="M590 392 L733 392" marker-end="url(#pt2)"/><text x="598" y="386">registrar(previa)</text>
+    <text x="600" y="414">… repete para os 6 votos …</text>
+    <path class="seta" d="M425 444 L82 444" marker-end="url(#pt2)"/><text x="160" y="438">evento "fim_eleitor"</text>
+    <path class="seta" d="M425 462 L820 462" marker-end="url(#pt2)"/><text x="610" y="456">tela FIM</text>
+    <text x="90" y="490">display: "VOTO CONCLUÍDO"</text>
+  </g>
+</svg>
+<figcaption>Verde = modelo; azul = interface. Cada voto vai direto para a contagem do Cargo — sem o nome do eleitor.</figcaption>
+</figure>
+</section>
+
+<!-- ================================================================== 5 -->
+<section id="estados">
+<h2>6. Estados da urna</h2>
+<p>A urna é uma <strong>máquina de estados</strong> (<code>EstadoUrna</code>, um <code>Enum</code>). Cada método
+confere o estado atual antes de agir. Além do estado, existe a <strong>conexão</strong> (<code>conectada</code>),
+que é independente.</p>
+<figure>
+<svg viewBox="0 0 860 220" role="img" aria-label="Diagrama de estados da urna">
+  <defs><marker id="pt3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: var(--suave)"/></marker></defs>
+  <rect class="caixa" x="10" y="80" width="150" height="56" rx="28"/><text class="tit" x="85" y="113" text-anchor="middle">PREPARADA</text>
+  <rect class="caixa modelo" x="250" y="80" width="200" height="56" rx="28"/><text class="tit" x="350" y="113" text-anchor="middle">AGUARDANDO_ELEITOR</text>
+  <rect class="caixa interface" x="540" y="10" width="150" height="56" rx="28"/><text class="tit" x="615" y="43" text-anchor="middle">VOTANDO</text>
+  <rect class="caixa dados" x="540" y="150" width="160" height="56" rx="28"/><text class="tit" x="620" y="183" text-anchor="middle">ENCERRADA</text>
+  <g class="rot">
+    <path class="seta" d="M160 108 L248 108" marker-end="url(#pt3)"/><text x="166" y="100">abrir(senha)</text><text x="168" y="128">zerésima</text>
+    <path class="seta" d="M420 80 L540 42" marker-end="url(#pt3)"/><text x="405" y="50">habilitar(eleitor)</text>
+    <path class="seta" d="M560 66 L440 88" marker-end="url(#pt3)"/><text x="452" y="94">último confirmar() / interromper()</text>
+    <path class="seta" d="M420 136 L540 176" marker-end="url(#pt3)"/><text x="410" y="176">encerrar(senha)</text><text x="438" y="192">BU</text>
+  </g>
+</svg>
+<figcaption>Só dá para encerrar em AGUARDANDO_ELEITOR: com alguém votando, <code>encerrar()</code> lança <code>UrnaOcupada</code>.</figcaption>
+</figure>
+<div class="tabela"><table>
+<tr><th>Estado</th><th>Tela da urna</th><th>Teclas da urna</th><th>Liberar eleitor</th></tr>
+<tr><td><code>PREPARADA</code></td><td>"AGUARDANDO CONEXÃO" ou "URNA PREPARADA"</td><td><span class="e">UrnaBloqueada</span></td><td><span class="e">VotacaoNaoIniciada</span></td></tr>
+<tr><td><code>AGUARDANDO_ELEITOR</code></td><td>"Aguardando liberação do eleitor"</td><td><span class="e">UrnaBloqueada</span> (faixa vermelha)</td><td>✔ (se conectada)</td></tr>
+<tr><td><code>VOTANDO</code></td><td>"SEU VOTO PARA …"</td><td>✔</td><td><span class="e">UrnaOcupada</span></td></tr>
+<tr><td><code>ENCERRADA</code></td><td>"VOTAÇÃO ENCERRADA"</td><td><span class="e">UrnaBloqueada</span></td><td><span class="e">VotacaoEncerrada</span></td></tr>
+</table></div>
+</section>
+
+<!-- ================================================================== 6 -->
+<section id="poo">
+<h2>7. Conceitos de POO aplicados</h2>
+<p>Esta seção explica <strong>por que</strong> o código foi escrito assim, com exemplos tirados do próprio projeto.</p>
+
+<h3 id="classes">7.1 Classe e objeto</h3>
+<p>A <strong>classe</strong> é o molde; o <strong>objeto</strong> é uma instância com seus próprios valores.
+<code>Eleitor</code> é a classe; o João e a Maria são dois objetos diferentes, cada um com o seu título e o
+seu <code>votou</code>. O <code>__init__</code> (construtor) preenche e <strong>valida</strong> os atributos:
+um objeto nunca nasce inválido.</p>
+<pre><code><span class="k">class</span> Eleitor(Pessoa):
+    <span class="k">def</span> __init__(self, titulo, nome, possui_biometria=<span class="k">True</span>):
+        super().__init__(nome)
+        titulo = str(titulo)
+        <span class="k">if</span> len(titulo) != self.DIGITOS_TITULO <span class="k">or not</span> titulo.isdigit():
+            <span class="k">raise</span> ValueError(<span class="s">f"Título inválido: {titulo!r} (use 12 dígitos)."</span>)
+        self.__titulo = titulo
+        self.__biometria = bool(possui_biometria)
+        self.__votou = <span class="k">False</span></code></pre>
+
+<h3 id="encapsulamento">7.2 Encapsulamento: público, <code>_protegido</code> e <code>__privado</code></h3>
+<p>Encapsular é <strong>esconder os dados internos</strong> e só deixar mexer neles por métodos que
+aplicam as regras. Python usa uma convenção de nomes com sublinhado:</p>
+<div class="tabela"><table>
+<tr><th>Forma</th><th>Significado</th><th>Exemplo no projeto</th></tr>
+<tr><td><span class="selo pub">público</span> <code>nome</code></td><td>Pode ser usado por qualquer código.</td><td><code>urna.estado</code>, <code>terminal.liberar()</code></td></tr>
+<tr><td><span class="selo prot">protegido</span> <code>_nome</code></td><td><strong>Convenção</strong>: "uso interno, não mexa de fora". O Python não impede nada.</td><td><code>Urna._notificar()</code>, <code>TerminalMesario._urna()</code>, quase todo o estado interno das janelas (<code>_modo</code>, <code>_titulo</code>)</td></tr>
+<tr><td><span class="selo priv">privado</span> <code>__nome</code></td><td>O Python <strong>renomeia</strong> o atributo (<em>name mangling</em>) para <code>_Classe__nome</code>. Acesso por fora com o nome original falha.</td><td><code>Eleicao.__turno</code>, <code>Candidato.__votos</code>, <code>Mesario.__senha</code>, <code>Urna.__estado</code></td></tr>
+</table></div>
+
+<h4>O que o Python faz com <code>__turno</code> (name mangling)</h4>
+<p>Quando a classe <code>Eleicao</code> escreve <code>self.__turno = turno</code>, o Python guarda o atributo com
+o nome <strong><code>_Eleicao__turno</code></strong>. Resultado real, executado no projeto:</p>
+<pre><code>&gt;&gt;&gt; el.turno                    <span class="c"># pela @property: funciona</span>
+1
+&gt;&gt;&gt; el.__turno
+<span class="e">AttributeError: 'Eleicao' object has no attribute '__turno'</span>
+&gt;&gt;&gt; el.turno = 2                <span class="c"># a property não tem setter</span>
+<span class="e">AttributeError: property 'turno' of 'Eleicao' object has no setter</span>
+&gt;&gt;&gt; list(vars(el))[:4]          <span class="c"># os nomes verdadeiros dentro do objeto</span>
+['_Eleicao__descricao', '_Eleicao__turno', '_Eleicao__data', '_Eleicao__secao']
+&gt;&gt;&gt; el._Eleicao__turno          <span class="c"># dá para "furar", mas só de propósito</span>
+1</code></pre>
+
+<div class="aviso laranja">
+<p><strong>Importante:</strong> <code>__</code> <em>não é segurança</em> — é <strong>proteção contra acidentes</strong>.
+Quem escreve <code>el._Eleicao__turno</code> sabe que está quebrando o encapsulamento. Outra pegadinha
+real: <code>el.__turno = 99</code> fora da classe <strong>não altera o turno</strong>; cria um atributo novo
+chamado literalmente <code>__turno</code> (testamos: depois disso, <code>el.turno</code> continua <code>1</code>).</p>
+</div>
+
+<h4>Por que usamos <code>__</code> (e não só <code>_</code>) no modelo</h4>
+<ul>
+  <li><strong>Os dados do modelo são as regras da eleição.</strong> O turno, os votos de um candidato, a senha
+  do mesário e o estado da urna não podem ser alterados por engano. Com <code>__</code>, um
+  <code>candidato.votos = 1000</code> ou <code>candidato.__votos = 1000</code> simplesmente não muda a contagem.</li>
+  <li><strong>Evita colisão de nomes na herança.</strong> <code>Pessoa</code> guarda <code>self.__nome</code> e
+  <code>Eleitor</code> guarda <code>self.__titulo</code>. Os nomes reais ficam separados por classe:
+  <code>['_Pessoa__nome', '_Eleitor__titulo', '_Eleitor__biometria', '_Eleitor__votou']</code>. Por isso o
+  <code>Eleitor</code> não acessa <code>self.__nome</code> (que viraria <code>_Eleitor__nome</code>) — ele usa
+  a property <code>self.nome</code> herdada de <code>Pessoa</code>.</li>
+  <li><strong>Métodos privados também.</strong> <code>ImpressoraUrna.__cabecalho()</code>,
+  <code>CarregadorEleicao.__criar_cargo()</code>, <code>Urna.__restaurar()</code> e
+  <code>Aplicacao.__posicionar()</code> são detalhes de implementação: quem usa a classe só precisa de
+  <code>emitir_boletim()</code>, <code>carregar()</code>, <code>liberar()</code> e <code>executar()</code>.</li>
+</ul>
+
+<h4>E por que a interface usa <code>_</code>?</h4>
+<p>Nas janelas (<code>JanelaTerminal._modo</code>, <code>TelaUrna._pressionada</code>…) o estado é apenas
+<em>visual</em>: se alguém mexer, no máximo a tela se desenha errado — a eleição continua correta, porque as
+regras estão no modelo. A convenção <code>_</code> é suficiente e deixa o código mais simples.
+<strong>A proteção forte (<code>__</code>) foi colocada onde ela importa: nas regras.</strong></p>
+
+<h4>Atributos que ficaram públicos de propósito</h4>
+<ul>
+  <li><code>Vice.titulo</code> e <code>Vice.nome</code>: o vice é só um "rótulo" exibido na tela, sem regra para proteger.</li>
+  <li><code>Previa</code>, <code>Secao</code> e <code>Documento</code>: são <code>@dataclass(frozen=True)</code> —
+  <strong>imutáveis</strong>. Qualquer tentativa de alterar gera <code>FrozenInstanceError</code>, então não precisam de <code>__</code>.</li>
+  <li>Nas janelas, <code>self.urna</code>, <code>self.terminal</code>, <code>self.sons</code>: são as dependências que a janela recebe.</li>
+</ul>
+
+<h3 id="property">7.3 <code>@property</code>: ler como atributo, controlar como método</h3>
+<p>O decorador <code>@property</code> transforma um método em algo que se <strong>lê como atributo</strong>
+(<code>eleicao.turno</code>, sem parênteses). Usamos de três formas:</p>
+
+<h4>a) Leitura sem escrita (somente leitura)</h4>
+<pre><code><span class="k">class</span> Eleicao:
+    <span class="k">def</span> __init__(self, descricao, turno, ...):
+        self.__turno = turno          <span class="c"># guardado escondido</span>
+
+    @property
+    <span class="k">def</span> turno(self):                <span class="c"># exposto só para leitura</span>
+        <span class="k">return</span> self.__turno</code></pre>
+<p>Como não existe <code>@turno.setter</code>, ninguém consegue trocar o turno depois de criado
+(<code>property 'turno' of 'Eleicao' object has no setter</code>). Isso vale para <code>Candidato.votos</code>:
+a <strong>única</strong> forma de somar um voto é <code>receber_voto()</code>.</p>
+
+<h4>b) Valores calculados na hora</h4>
+<p>Algumas properties não guardam nada — calculam a partir de outros dados, então nunca ficam desatualizadas:</p>
+<div class="tabela"><table>
+<tr><th>Property</th><th>Cálculo</th></tr>
+<tr><td><code>Cargo.total</code></td><td><code>validos + brancos + nulos</code></td></tr>
+<tr><td><code>Cargo.validos</code></td><td><code>nominais + legenda_total</code></td></tr>
+<tr><td><code>Eleicao.comparecimento</code></td><td>quantos eleitores têm <code>votou == True</code></td></tr>
+<tr><td><code>Eleitor.titulo_formatado</code></td><td><code>"0001 2345 0101"</code> a partir de <code>__titulo</code></td></tr>
+<tr><td><code>TerminalMesario.conectado</code></td><td>tem urna <em>e</em> a urna está conectada</td></tr>
+<tr><td><code>SessaoVotacao.previa</code></td><td>interpreta o número digitado no cargo atual</td></tr>
+</table></div>
+
+<h4>c) Devolver cópias, protegendo coleções internas</h4>
+<p><code>Eleicao.eleitores</code> devolve uma <strong>lista nova</strong> (ordenada), <code>Eleicao.partidos</code>
+devolve um <strong>dict copiado</strong> e <code>Urna.log</code> devolve uma <strong>tupla</strong>. Teste real:
+apagar a lista recebida não apaga ninguém da eleição.</p>
+<pre><code>&gt;&gt;&gt; lista = el.eleitores
+&gt;&gt;&gt; lista.clear()
+&gt;&gt;&gt; el.aptos
+8           <span class="c"># o dicionário interno __eleitores continua intacto</span></code></pre>
+<div class="aviso"><p><strong>Por que não um atributo público simples?</strong> Com <code>self.turno = turno</code>
+qualquer código poderia escrever <code>eleicao.turno = 7</code>. Com <code>__turno</code> + <code>@property</code>,
+quem usa a classe continua escrevendo <code>eleicao.turno</code>, mas a classe decide que o valor é só de leitura —
+e, se um dia precisar validar ou calcular, muda por dentro sem quebrar quem usa.</p></div>
+
+<h3 id="estaticos">7.4 <code>@staticmethod</code> e <code>@classmethod</code></h3>
+<div class="tabela"><table>
+<tr><th>Decorador</th><th>Recebe</th><th>Quando usamos</th><th>Exemplos</th></tr>
+<tr><td style="white-space:nowrap"><code>@staticmethod</code></td><td>nada automático (nem <code>self</code>, nem <code>cls</code>)</td><td>Função que pertence ao assunto da classe, mas não precisa de um objeto.</td>
+<td><code>ImpressoraUrna.calcular_codigo(linhas)</code>, <code>Cargo.previa_branco()</code>, <code>DialogoDocumento._abrir(caminho)</code></td></tr>
+<tr><td style="white-space:nowrap"><code>@classmethod</code></td><td><code>cls</code> (a própria classe)</td><td>Precisa dos atributos de classe.</td>
+<td><code>Pincel.fonte(px)</code> e <code>Pincel.largura(...)</code> usam <code>cls.FAMILIAS</code></td></tr>
+</table></div>
+<p>Exemplo: <code>Documento.verificar()</code> chama <code>ImpressoraUrna.calcular_codigo(...)</code> sem criar uma impressora,
+porque calcular um SHA-256 não depende de nenhum objeto.</p>
+
+<h3 id="atributos-classe">7.5 Atributo de classe × atributo de instância</h3>
+<p><strong>Atributo de classe</strong> é compartilhado por todos os objetos (fica no corpo da classe);
+<strong>de instância</strong> é de cada objeto (criado com <code>self.</code> no <code>__init__</code>).</p>
+<div class="tabela"><table>
+<tr><th>De classe (constantes, iguais para todos)</th><th>De instância (cada objeto tem o seu)</th></tr>
+<tr><td><code>Eleitor.DIGITOS_TITULO = 12</code><br><code>ImpressoraUrna.LARGURA = 40</code><br><code>Sons.SEQUENCIAS</code>, <code>TelaUrna.CORES_TECLAS</code><br><code>JanelaTerminal.ESTILO</code>, <code>Aplicacao.PASTA</code></td>
+<td><code>Eleitor.__titulo</code>, <code>__votou</code><br><code>Candidato.__votos</code><br><code>Urna.__estado</code>, <code>__log</code><br><code>JanelaTerminal._modo</code></td></tr>
+</table></div>
+
+<h3 id="heranca">7.6 Herança</h3>
+<p>A classe filha <strong>reaproveita</strong> tudo da mãe e acrescenta o que é dela. <code>super().__init__()</code>
+chama o construtor da mãe.</p>
+<figure>
+<svg viewBox="0 0 860 250" role="img" aria-label="Hierarquias de herança">
+  <defs><marker id="her" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto">
+    <path d="M0,0 L12,6 L0,12 z" style="fill: var(--papel); stroke: var(--suave); stroke-width: 1.2"/></marker></defs>
+  <g class="peq">
+  <rect class="caixa modelo" x="70" y="14" width="120" height="38" rx="8"/><text x="130" y="38" text-anchor="middle">Pessoa</text>
+  <rect class="caixa modelo" x="10" y="110" width="110" height="38" rx="8"/><text x="65" y="134" text-anchor="middle">Eleitor</text>
+  <rect class="caixa modelo" x="140" y="110" width="110" height="38" rx="8"/><text x="195" y="134" text-anchor="middle">Mesario</text>
+  <path class="seta" d="M65 110 L118 54" marker-end="url(#her)"/><path class="seta" d="M195 110 L142 54" marker-end="url(#her)"/>
+
+  <rect class="caixa" x="330" y="14" width="120" height="38" rx="8"/><text x="390" y="38" text-anchor="middle">Exception</text>
+  <rect class="caixa modelo" x="330" y="90" width="120" height="38" rx="8"/><text x="390" y="114" text-anchor="middle">ErroUrna</text>
+  <path class="seta" d="M390 90 L390 54" marker-end="url(#her)"/>
+  <rect class="caixa modelo" x="285" y="168" width="210" height="64" rx="8"/>
+  <text x="390" y="190" text-anchor="middle">UrnaBloqueada, UrnaOcupada,</text>
+  <text x="390" y="207" text-anchor="middle">EleitorJaVotou, SenhaIncorreta…</text>
+  <text x="390" y="224" text-anchor="middle">(10 exceções)</text>
+  <path class="seta" d="M390 168 L390 130" marker-end="url(#her)"/>
+
+  <rect class="caixa" x="560" y="14" width="110" height="38" rx="8"/><text x="615" y="38" text-anchor="middle">QPainter</text>
+  <rect class="caixa interface" x="560" y="110" width="110" height="38" rx="8"/><text x="615" y="134" text-anchor="middle">Pincel</text>
+  <path class="seta" d="M615 110 L615 54" marker-end="url(#her)"/>
+  <rect class="caixa" x="690" y="6" width="165" height="54" rx="8"/><text x="772" y="29" text-anchor="middle">QWidget /</text><text x="772" y="47" text-anchor="middle">QMainWindow</text>
+  <rect class="caixa interface" x="690" y="110" width="165" height="104" rx="8"/>
+  <text x="772" y="132" text-anchor="middle">TelaUrna, Led,</text><text x="772" y="150" text-anchor="middle">LeitorBiometrico,</text>
+  <text x="772" y="168" text-anchor="middle">JanelaUrna,</text><text x="772" y="186" text-anchor="middle">JanelaTerminal,</text>
+  <text x="772" y="204" text-anchor="middle">DialogoDocumento</text>
+  <path class="seta" d="M772 110 L772 62" marker-end="url(#her)"/>
+  </g>
+</svg>
+<figcaption>Herança nas nossas classes (verde/azul) e a partir de classes do Python e do Qt (cinza).</figcaption>
+</figure>
+<pre><code><span class="k">class</span> Mesario(Pessoa):
+    <span class="k">def</span> __init__(self, nome, senha):
+        super().__init__(nome)        <span class="c"># Pessoa valida e guarda o nome</span>
+        self.__senha = str(senha)     <span class="c"># só o Mesario tem senha</span>
+
+<span class="k">class</span> Pincel(QPainter):            <span class="c"># herda TODOS os métodos de desenho do Qt…</span>
+    <span class="k">def</span> escrever(self, rect, conteudo, px, ...):   <span class="c"># …e acrescenta os nossos</span>
+        self.setFont(self.fonte(px, negrito))
+        self.drawText(rect, alinhar, conteudo)       <span class="c"># método herdado de QPainter</span></code></pre>
+<p><strong>Herança múltipla:</strong> <code>EleitorNaoEncontrado(ErroUrna, LookupError)</code> é ao mesmo tempo um erro
+da urna e um erro de busca do Python.</p>
+
+<h3 id="polimorfismo">7.7 Polimorfismo e sobrescrita</h3>
+<ul>
+  <li><strong>Exceções:</strong> <code>except ErroUrna as erro:</code> captura <em>qualquer</em> uma das 10 filhas —
+  a mesma linha trata <code>UrnaOcupada</code>, <code>SenhaIncorreta</code>… e cada uma traz sua própria mensagem.</li>
+  <li><strong>Sobrescrita de métodos do Qt:</strong> <code>TelaUrna</code> redefine <code>paintEvent()</code>,
+  <code>mousePressEvent()</code> e <code>keyPressEvent()</code>. O Qt chama sempre o mesmo método; cada
+  widget responde do seu jeito.</li>
+  <li><strong><code>__str__</code>:</strong> <code>Partido</code> e <code>Candidato</code> definem como aparecem em
+  <code>print()</code> / <code>str()</code> (ex.: <code>14 - PAZ</code>).</li>
+  <li><strong>Ouvintes:</strong> a urna chama <code>funcao(evento)</code> sem saber se é a janela da urna ou do terminal.</li>
+</ul>
+
+<h3 id="composicao">7.8 Composição ("tem um")</h3>
+<p>Além de herança ("é um"), objetos são montados com outros objetos:</p>
+<ul>
+  <li><code>Urna</code> <strong>tem uma</strong> <code>ImpressoraUrna</code> e, durante a votação, uma <code>SessaoVotacao</code>.</li>
+  <li><code>Eleicao</code> tem <code>Secao</code>, <code>Partido</code>s, <code>Cargo</code>s, <code>Eleitor</code>es e um <code>Mesario</code>.</li>
+  <li><code>Cargo</code> tem <code>Candidato</code>s; <code>Candidato</code> tem um <code>Partido</code> e <code>Vice</code>s.</li>
+  <li><code>TerminalMesario</code> tem uma referência à <code>Urna</code> (o "cabo"). <code>Aplicacao</code> tem tudo.</li>
+</ul>
+
+<h3 id="enum-dataclass">7.9 <code>Enum</code> e <code>@dataclass(frozen=True)</code></h3>
+<p><code>Enum</code> cria um conjunto fechado de valores com nome: <code>EstadoUrna.VOTANDO</code> é mais claro e seguro
+que a string <code>"votando"</code> (um erro de digitação vira erro na hora). Usamos <code>EstadoUrna</code>,
+<code>TipoVoto</code> e <code>Modo</code> (estados do terminal).</p>
+<p><code>@dataclass(frozen=True)</code> gera <code>__init__</code>, <code>__repr__</code> e <code>__eq__</code>
+automaticamente e torna o objeto <strong>imutável</strong>. Usado em <code>Previa</code>, <code>Secao</code> e
+<code>Documento</code> — dados que, depois de criados, não devem mudar (um BU emitido não pode ser editado).</p>
+
+<h3 id="excecoes">7.10 Exceções como regras de negócio</h3>
+<p>Cada regra violada tem <strong>uma exceção com nome próprio</strong>. O modelo <em>lança</em>; a interface
+<em>captura</em> e mostra a mensagem. O programa nunca é derrubado por uma entrada inválida.</p>
+<pre><code><span class="c"># modelo/urna.py — lança</span>
+<span class="k">if</span> self.__estado <span class="k">is</span> EstadoUrna.VOTANDO:
+    <span class="k">raise</span> UrnaOcupada(<span class="s">"Há um eleitor votando."</span>)
+
+<span class="c"># interface/janela_terminal.py — captura</span>
+<span class="k">except</span> UrnaOcupada:
+    self._mensagem([<span class="s">"URNA OCUPADA"</span>, <span class="s">""</span>, <span class="s">"AGUARDE O ELEITOR"</span>, <span class="s">"TERMINAR DE VOTAR"</span>])</code></pre>
+
+<h3 id="observer">7.11 Padrão Observer (ouvintes)</h3>
+<p>A urna precisa avisar as duas janelas quando algo muda, mas <strong>não pode depender delas</strong> (o modelo
+não conhece a interface). Solução: as janelas se cadastram como ouvintes.</p>
+<pre><code><span class="c"># main.py</span>
+self.urna.adicionar_ouvinte(self.janela_urna.atualizar)
+self.urna.adicionar_ouvinte(self.janela_terminal.atualizar)
+
+<span class="c"># modelo/urna.py</span>
+<span class="k">def</span> _notificar(self, evento):
+    <span class="k">for</span> funcao <span class="k">in</span> self.__ouvintes:
+        funcao(evento)        <span class="c"># "conexao", "estado", "liberada", "tecla", "voto", "fim_eleitor"</span></code></pre>
+</section>
+
+<!-- ================================================================== 7 -->
+<section id="regras">
+<h2>8. Regras de negócio</h2>
+<p class="aviso">As regras abaixo foram construídas a partir do enunciado do Projeto Integrador, do simulador de referência e do processo eleitoral brasileiro. Veja a origem de cada uma em <a href="#fontes">15. Fontes utilizadas</a>.</p>
+<h3>Liberação do eleitor</h3>
+<ol>
+  <li>O cabo precisa estar conectado (<span class="e">UrnaDesconectada</span>).</li>
+  <li>A votação precisa estar aberta e a urna livre (<span class="e">VotacaoNaoIniciada</span>, <span class="e">VotacaoEncerrada</span>, <span class="e">UrnaOcupada</span>).</li>
+  <li>O título precisa ser da seção (<span class="e">EleitorNaoEncontrado</span>) e o eleitor não pode ter votado (<span class="e">EleitorJaVotou</span>).</li>
+  <li><strong>Biometria:</strong> quem tem biometria cadastrada só é liberado com a digital conferida no leitor
+  (<span class="e">BiometriaPendente</span>; a leitura é simulada: um clique aprova). Quem <strong>não tem</strong> é
+  liberado pelo mesário depois de conferir o <strong>documento com foto</strong>.</li>
+</ol>
+<h3 id="como-libera">Como a urna sabe que o eleitor foi liberado</h3>
+<p>A urna não "enxerga" o mesário. Ela decide se aceita teclas olhando um único dado <strong>privado</strong>: o seu estado, <code>__estado</code>. Só o estado <code>VOTANDO</code> destrava o teclado, e só existe <strong>um</strong> método que coloca a urna nesse estado: <code>Urna.habilitar()</code>, chamado pelo terminal do mesário através do "cabo" (a referência que o <code>TerminalMesario</code> guarda para a urna). Como <code>__estado</code> não tem <em>setter</em>, não há outro caminho para liberar a urna.</p>
+<figure>
+<svg viewBox="0 0 900 470" role="img" aria-label="Fluxo da liberação do eleitor e da trava do teclado da urna">
+  <defs><marker id="ptl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: var(--suave)"/></marker></defs>
+  <text class="tit" x="10" y="22">A) Liberação — feita pelo mesário</text>
+  <g class="peq">
+    <rect class="caixa interface" x="10" y="36" width="150" height="70" rx="8"/>
+    <text x="85" y="62" text-anchor="middle">Mesário confere</text><text x="85" y="80" text-anchor="middle">digital ou documento</text>
+    <text x="85" y="97" text-anchor="middle" class="rot">JanelaTerminal._liberar()</text>
+    <rect class="caixa modelo" x="195" y="36" width="160" height="70" rx="8"/>
+    <text x="275" y="58" text-anchor="middle">TerminalMesario.liberar()</text>
+    <text x="275" y="78" text-anchor="middle" class="rot">cabo conectado?</text><text x="275" y="95" text-anchor="middle" class="rot">biometria conferida?</text>
+    <rect class="caixa modelo" x="390" y="36" width="160" height="70" rx="8"/>
+    <text x="470" y="58" text-anchor="middle">Urna.habilitar()</text>
+    <text x="470" y="78" text-anchor="middle" class="rot">votação aberta e livre?</text><text x="470" y="95" text-anchor="middle" class="rot">eleitor ainda não votou?</text>
+    <rect class="caixa dados" x="585" y="36" width="140" height="70" rx="8"/>
+    <text x="655" y="62" text-anchor="middle">__estado =</text><text x="655" y="82" text-anchor="middle" style="font-weight:700">VOTANDO</text>
+    <text x="655" y="98" text-anchor="middle" class="rot">+ nova SessaoVotacao</text>
+    <rect class="caixa interface" x="760" y="36" width="130" height="70" rx="8"/>
+    <text x="825" y="58" text-anchor="middle">_notificar(</text><text x="825" y="76" text-anchor="middle">"liberada")</text>
+    <text x="825" y="95" text-anchor="middle" class="rot">telas redesenham</text>
+    <path class="seta" d="M160 71 L193 71" marker-end="url(#ptl)"/><path class="seta" d="M355 71 L388 71" marker-end="url(#ptl)"/>
+    <path class="seta" d="M550 71 L583 71" marker-end="url(#ptl)"/><path class="seta" d="M725 71 L758 71" marker-end="url(#ptl)"/>
+    <text x="198" y="128" class="rot" style="fill: var(--vermelho)">não → UrnaDesconectada / BiometriaPendente</text>
+    <text x="393" y="146" class="rot" style="fill: var(--vermelho)">não → VotacaoNaoIniciada / UrnaOcupada / EleitorJaVotou</text>
+  </g>
+
+  <text class="tit" x="10" y="190">B) Cada tecla da urna passa pela "trava"</text>
+  <g class="peq">
+    <rect class="caixa interface" x="10" y="206" width="150" height="62" rx="8"/>
+    <text x="85" y="232" text-anchor="middle">Eleitor aperta</text><text x="85" y="250" text-anchor="middle">TelaUrna.acionar()</text>
+    <rect class="caixa modelo" x="195" y="206" width="160" height="62" rx="8"/>
+    <text x="275" y="232" text-anchor="middle">Urna.digitar() /</text><text x="275" y="250" text-anchor="middle">confirmar() …</text>
+    <polygon class="caixa dados" points="470,196 560,237 470,278 380,237"/>
+    <text x="470" y="232" text-anchor="middle">_sessao_ativa()</text><text x="470" y="250" text-anchor="middle" style="font-weight:700">VOTANDO?</text>
+    <rect class="caixa modelo" x="600" y="206" width="160" height="62" rx="8"/>
+    <text x="680" y="232" text-anchor="middle">sim: a tecla vai para</text><text x="680" y="250" text-anchor="middle">a SessaoVotacao</text>
+    <rect class="caixa" x="380" y="316" width="180" height="62" rx="8" style="stroke: var(--vermelho)"/>
+    <text x="470" y="342" text-anchor="middle">não: UrnaBloqueada</text><text x="470" y="360" text-anchor="middle">faixa "URNA BLOQUEADA"</text>
+    <path class="seta" d="M160 237 L193 237" marker-end="url(#ptl)"/><path class="seta" d="M355 237 L378 237" marker-end="url(#ptl)"/>
+    <path class="seta" d="M560 237 L598 237" marker-end="url(#ptl)"/><path class="seta" d="M470 278 L470 314" marker-end="url(#ptl)"/>
+  </g>
+
+  <text class="tit" x="10" y="420">C) A urna trava de novo</text>
+  <g class="peq">
+    <rect class="caixa dados" x="250" y="398" width="640" height="56" rx="8"/>
+    <text x="570" y="422" text-anchor="middle">último confirmar() → _finalizar_eleitor() · interromper(senha) · religamento após queda</text>
+    <text x="570" y="442" text-anchor="middle">→ __estado = AGUARDANDO_ELEITOR (o teclado volta a bloquear)</text>
+  </g>
+</svg>
+<figcaption>Verde = modelo; azul = interface; laranja = o estado que funciona como "cadeado" da urna.</figcaption>
+</figure>
+<h4>O algoritmo, em português estruturado</h4>
+<p class="arquivo-codigo"><code>resumo do fluxo (pseudocódigo)</code></p>
+<pre><code><span class="k">ALGORITMO</span> liberar_eleitor(eleitor)               <span class="c"># terminal do mesário + urna</span>
+    <span class="k">SE</span> cabo desconectado <span class="k">ENTÃO</span> <span class="k">ERRO</span> <span class="s">"URNA NÃO CONECTADA"</span>
+    <span class="k">SE</span> eleitor tem biometria <span class="k">E</span> digital não conferida <span class="k">ENTÃO</span> <span class="k">ERRO</span> <span class="s">"BIOMETRIA PENDENTE"</span>
+    <span class="k">SE</span> votação não aberta <span class="k">OU</span> encerrada <span class="k">ENTÃO</span> <span class="k">ERRO</span> <span class="s">"URNA INDISPONÍVEL"</span>
+    <span class="k">SE</span> já existe eleitor votando <span class="k">ENTÃO</span> <span class="k">ERRO</span> <span class="s">"URNA OCUPADA"</span>
+    <span class="k">SE</span> eleitor já votou <span class="k">ENTÃO</span> <span class="k">ERRO</span> <span class="s">"ELEITOR JÁ VOTOU"</span>
+    sessao &lt;- nova SessaoVotacao(cargos)          <span class="c"># o que ele vai digitar</span>
+    estado &lt;- VOTANDO                             <span class="c"># destrava o teclado</span>
+    avisar as telas (<span class="s">"liberada"</span>)
+<span class="k">FIM</span>
+
+<span class="k">ALGORITMO</span> tecla_da_urna(tecla)                   <span class="c"># toda tecla passa por aqui</span>
+    <span class="k">SE</span> estado != VOTANDO <span class="k">ENTÃO</span> <span class="k">ERRO</span> UrnaBloqueada  <span class="c"># tela mostra "URNA BLOQUEADA"</span>
+    <span class="k">SENÃO</span> repassar a tecla para a sessao
+    <span class="k">SE</span> foi o CONFIRMA do último cargo <span class="k">ENTÃO</span>
+        marcar comparecimento do eleitor
+        estado &lt;- AGUARDANDO_ELEITOR              <span class="c"># trava de novo</span>
+<span class="k">FIM</span></code></pre>
+<h4>O mesmo fluxo no código, passo a passo</h4>
+<p class="arquivo-codigo">Trechos copiados do código do projeto. Alguns comentários foram acrescentados aqui para a explicação.</p>
+<div class="passo"><span class="num">1</span><h4>A interface do terminal pede a liberação ao modelo</h4></div>
+<p>Depois que o mesário conferiu a digital (ou o documento), a janela do terminal não libera nada sozinha: ela chama o modelo e, se alguma regra falhar, só mostra a mensagem no visor.</p>
+<p class="arquivo-codigo"><code>interface/janela_terminal.py — JanelaTerminal._liberar (trecho)</code></p>
+<pre><code><span class="k">def</span> _liberar(self, digital_conferida):
+    <span class="k">try</span>:
+        self.terminal.liberar(self._eleitor, digital_conferida)   <span class="c"># pede ao MODELO</span>
+    <span class="k">except</span> ErroUrna as erro:                                       <span class="c"># regra não cumprida</span>
+        self.leitor.definir_estado(<span class="s">"inativo"</span>)
+        motivo = <span class="s">"URNA NÃO CONECTADA"</span> <span class="k">if</span> isinstance(erro, UrnaDesconectada) <span class="k">else</span> <span class="s">"NÃO LIBERADO"</span>
+        self._mensagem([motivo, <span class="s">""</span>, *self._quebrar(str(erro))[:2]])
+        <span class="k">return</span>
+    self._modo = Modo.VOTANDO        <span class="c"># display: "URNA LIBERADA / ELEITOR VOTANDO..."</span></code></pre>
+<div class="passo"><span class="num">2</span><h4>O terminal confere o cabo e a biometria</h4></div>
+<p class="arquivo-codigo"><code>modelo/terminal.py — TerminalMesario</code></p>
+<pre><code><span class="k">def</span> _urna(self):
+    <span class="k">if</span> <span class="k">not</span> self.conectado:                        <span class="c"># sem cabo, nada chega à urna</span>
+        <span class="k">raise</span> UrnaDesconectada(<span class="s">"A urna não está conectada ao terminal do mesário."</span>)
+    <span class="k">return</span> self.__urna
+
+<span class="k">def</span> liberar(self, eleitor, digital_conferida=<span class="k">False</span>):
+    urna = self._urna()
+    <span class="k">if</span> eleitor.possui_biometria <span class="k">and</span> <span class="k">not</span> digital_conferida:
+        <span class="k">raise</span> BiometriaPendente(<span class="s">"Confira a digital do eleitor no leitor biométrico."</span>)
+    urna.habilitar(eleitor)                       <span class="c"># o "sinal" que vai pelo cabo</span></code></pre>
+<div class="passo"><span class="num">3</span><h4>A urna confere as regras e destrava</h4></div>
+<p>É aqui que a liberação acontece de fato: depois de todas as conferências, a urna cria a sessão do eleitor e muda o próprio estado para <code>VOTANDO</code>. Em seguida avisa as janelas (padrão Observer), e a tela da urna troca de "Aguardando liberação" para "SEU VOTO PARA".</p>
+<p class="arquivo-codigo"><code>modelo/urna.py — Urna</code></p>
+<pre><code><span class="k">def</span> verificar_disponivel(self):
+    <span class="k">if</span> <span class="k">not</span> self.__conectada:
+        <span class="k">raise</span> UrnaDesconectada(<span class="s">"A urna não está conectada ao terminal do mesário."</span>)
+    <span class="k">if</span> self.__estado <span class="k">is</span> EstadoUrna.PREPARADA:
+        <span class="k">raise</span> VotacaoNaoIniciada(<span class="s">"A votação ainda não foi aberta."</span>)
+    <span class="k">if</span> self.__estado <span class="k">is</span> EstadoUrna.ENCERRADA:
+        <span class="k">raise</span> VotacaoEncerrada(<span class="s">"A votação já foi encerrada."</span>)
+    <span class="k">if</span> self.__estado <span class="k">is</span> EstadoUrna.VOTANDO:
+        <span class="k">raise</span> UrnaOcupada(<span class="s">"Há um eleitor votando."</span>)
+
+<span class="k">def</span> habilitar(self, eleitor):
+    self.verificar_disponivel()
+    <span class="k">if</span> eleitor.votou:
+        <span class="k">raise</span> EleitorJaVotou(f<span class="s">"{eleitor.nome} já votou."</span>)
+    self.__sessao = SessaoVotacao(self.__eleicao.cargos)
+    self.__eleitor_votando = eleitor              <span class="c"># só para marcar o comparecimento no fim</span>
+    self.__estado = EstadoUrna.VOTANDO            <span class="c"># &lt;-- AQUI a urna fica "liberada"</span>
+    self._registrar(<span class="s">"Eleitor habilitado"</span>)         <span class="c"># o log não identifica o eleitor</span>
+    self._notificar(<span class="s">"liberada"</span>)                   <span class="c"># avisa as duas janelas (Observer)</span></code></pre>
+<div class="passo"><span class="num">4</span><h4>Toda tecla da urna passa pela trava</h4></div>
+<p>Cada tecla começa chamando <code>_sessao_ativa()</code>. Se o estado não for <code>VOTANDO</code>, a urna lança <code>UrnaBloqueada</code> e a tecla é recusada antes de qualquer outra coisa.</p>
+<p class="arquivo-codigo"><code>modelo/urna.py — Urna</code></p>
+<pre><code><span class="k">def</span> _sessao_ativa(self):
+    <span class="k">if</span> self.__estado <span class="k">is</span> <span class="k">not</span> EstadoUrna.VOTANDO:   <span class="c"># a "trava" do teclado</span>
+        <span class="k">raise</span> UrnaBloqueada(<span class="s">"Aguarde a liberação pelo mesário."</span>)
+    <span class="k">return</span> self.__sessao
+
+<span class="k">def</span> digitar(self, digito):                        <span class="c"># votar_branco, corrigir e confirmar</span>
+    ok = self._sessao_ativa().digitar(digito)     <span class="c"># começam do mesmo jeito</span>
+    self._notificar(<span class="s">"tecla"</span>)
+    <span class="k">return</span> ok</code></pre>
+<div class="passo"><span class="num">5</span><h4>A tela da urna mostra o bloqueio</h4></div>
+<p class="arquivo-codigo"><code>interface/janela_urna.py — TelaUrna.acionar (trecho)</code></p>
+<pre><code><span class="k">def</span> acionar(self, nome):
+    <span class="k">try</span>:
+        <span class="k">if</span> nome.isdigit():
+            aceita = self.urna.digitar(nome)
+        <span class="k">elif</span> nome == <span class="s">"BRANCO"</span>:
+            aceita = self.urna.votar_branco()
+        <span class="k">elif</span> nome == <span class="s">"CORRIGE"</span>:
+            aceita = self.urna.corrigir()
+        <span class="k">else</span>:
+            aceita = self.urna.confirmar() <span class="k">is</span> <span class="k">not</span> <span class="k">None</span>
+    <span class="k">except</span> UrnaBloqueada:                         <span class="c"># a urna disse: "ninguém foi liberado"</span>
+        self.sons.tocar(<span class="s">"erro"</span>)
+        self.mostrar_aviso(<span class="s">"URNA BLOQUEADA"</span>, <span class="s">"Aguarde a liberação pelo mesário"</span>, <span class="s">"#b0261e"</span>,
+                           self.BLOQUEIO_SEGUNDOS)
+        <span class="k">return</span></code></pre>
+<div class="passo"><span class="num">6</span><h4>Ao terminar, a urna trava de novo</h4></div>
+<p>Depois do último cargo, a urna marca o comparecimento, descarta a sessão e volta para <code>AGUARDANDO_ELEITOR</code>. O mesmo acontece quando o presidente interrompe a votação (<code>interromper</code>) ou quando a urna é religada após uma queda de energia.</p>
+<p class="arquivo-codigo"><code>modelo/urna.py — Urna</code></p>
+<pre><code><span class="k">def</span> _finalizar_eleitor(self):                     <span class="c"># chamado pelo último confirmar()</span>
+    self.__eleitor_votando.registrar_comparecimento()
+    self.__eleitor_votando = <span class="k">None</span>
+    self.__sessao = <span class="k">None</span>
+    self.__estado = EstadoUrna.AGUARDANDO_ELEITOR  <span class="c"># &lt;-- trava de novo</span>
+    self._registrar(<span class="s">"Eleitor concluiu a votação"</span>)
+    self._notificar(<span class="s">"fim_eleitor"</span>)                <span class="c"># terminal mostra "VOTO CONCLUÍDO"</span></code></pre>
+<div class="aviso verde"><p><strong>Comprovado pelos testes:</strong> <code>test_teclado_bloqueado_sem_liberacao</code> (teclas lançam <code>UrnaBloqueada</code> sem liberação), <code>test_sem_cabo_nao_libera</code> (sem cabo não há liberação) e <code>test_biometria_e_titulo</code> (digital pendente e urna ocupada).</p></div>
+<h3>Interpretação do número digitado (<code>Cargo.interpretar</code>)</h3>
+<div class="tabela"><table>
+<tr><th>Digitado (Dep. Federal, 4 dígitos)</th><th>Resultado</th><th>CONFIRMA aceita?</th></tr>
+<tr><td><code>1401</code> (candidato existe)</td><td>NOMINAL — mostra nome, partido e foto</td><td>sim</td></tr>
+<tr><td><code>14</code> (só o partido)</td><td>LEGENDA — mostra o partido</td><td>sim</td></tr>
+<tr><td><code>140</code> (incompleto)</td><td>mostra o partido, ainda sem tipo</td><td>não</td></tr>
+<tr><td><code>1499</code> (partido existe, candidato não)</td><td>LEGENDA — "CANDIDATO INEXISTENTE"</td><td>sim</td></tr>
+<tr><td><code>9999</code> (partido não existe)</td><td>NULO — "NÚMERO ERRADO / VOTO NULO"</td><td>sim</td></tr>
+<tr><td>tecla BRANCO com campo vazio</td><td>BRANCO — "VOTO EM BRANCO"</td><td>sim</td></tr>
+</table></div>
+<ul>
+  <li>Cargos <strong>majoritários</strong> não têm legenda: número inexistente é sempre <strong>nulo</strong>.</li>
+  <li><strong>BRANCO</strong> só funciona com o campo vazio; depois do branco, os números são ignorados.</li>
+  <li><strong>CORRIGE</strong> apaga o voto do cargo atual (volta ao início do cargo).</li>
+  <li><strong>Senado:</strong> dois votos; o 2º não aceita o mesmo candidato do 1º ("CANDIDATO JÁ ESCOLHIDO").</li>
+</ul>
+<h3>Sigilo do voto</h3>
+<div class="aviso verde"><p>Ao confirmar, o voto vai <strong>direto para os contadores do <code>Cargo</code></strong>
+(<code>receber_voto()</code>, <code>__legenda</code>, <code>__brancos</code>, <code>__nulos</code>). Não existe nenhuma estrutura
+"eleitor → candidato". O <code>Eleitor</code> guarda só <code>__votou</code> (SE votou). O log registra
+"Eleitor habilitado" e "Voto computado: Governador" — sem nome e sem candidato. A <strong>memória</strong> gravada em disco também guarda só contadores e a lista de quem já votou.</p></div>
+<h3>Eleitor que desiste (interrupção pelo presidente)</h3>
+<ul>
+  <li><code>Urna.interromper(senha)</code> exige a senha do presidente e alguém votando (<span class="e">SenhaIncorreta</span>, <span class="e">OperacaoInvalida</span>).</li>
+  <li><strong>0 votos confirmados</strong> → votação <strong>suspensa</strong>: o eleitor não consta como votante e pode voltar.</li>
+  <li><strong>1 ou mais confirmados</strong> → os confirmados valem, os restantes são computados como <strong>nulos</strong>
+  e o eleitor consta como votante. Assim o BU continua fechando: em cada cargo, <em>total apurado = comparecimento × votos por eleitor</em>.</li>
+</ul>
+<div class="aviso laranja"><p>Regra baseada no procedimento usual da Justiça Eleitoral para eleitor que não conclui o voto.
+Confira os detalhes no Manual do Mesário oficial.</p></div>
+<h3>Queda de energia (memória da urna)</h3>
+<ul>
+  <li>A cada evento importante, a urna grava na <code>MemoriaUrna</code> (JSON em <code>memoria/</code>): estado, cabo,
+  horários, zerésima/BU, log, <strong>quem já votou</strong> e os <strong>contadores</strong> de cada cargo. A gravação é
+  atômica (arquivo temporário + troca), então uma queda no meio não corrompe o arquivo.</li>
+  <li>Ao religar, <code>Urna(eleicao, memoria)</code> recria tudo: os votos são "reproduzidos" pelos métodos públicos
+  (<code>receber_voto()</code>, <code>registrar()</code>) — o encapsulamento é preservado.</li>
+  <li>Se havia eleitor votando, aplica-se a mesma regra da interrupção (<code>pendencia_na_queda</code>).</li>
+</ul>
+<h3>Segundo turno</h3>
+<ul>
+  <li>A urna não tem nada "fixo" sobre cargos: a <code>SessaoVotacao</code> monta as etapas a partir de <code>eleicao.cargos</code>.
+  Com um único cargo (Presidente), o eleitor confirma uma vez e a votação termina.</li>
+  <li>Zerésima e BU usam o <code>turno</code> e a <code>data</code> do JSON ("2º turno - 25/10/2026") e listam só o cargo em disputa.</li>
+  <li><strong>Os turnos nunca se misturam:</strong> a memória é gravada num arquivo por turno (<code>urna_Z0001_S0042_T2.json</code>) e
+  registra o turno; se a memória for de outro turno, <code>Urna</code> recusa com <code>ValueError</code>. Por isso quem votou no
+  1º turno pode votar no 2º.</li>
+</ul>
+<h3>Abertura e encerramento</h3>
+<ul>
+  <li><strong>Abertura</strong> (<code>Urna.abrir</code>): exige a senha do presidente (<span class="e">SenhaIncorreta</span>, e a tentativa fica no log) e emite a <strong>zerésima</strong> antes de abrir, provando que todos estão com 0 votos.</li>
+  <li><strong>Encerramento</strong> (<code>Urna.encerrar</code>): exige a senha do presidente (<span class="e">SenhaIncorreta</span>,
+  e a tentativa fica no log), não pode haver eleitor votando, e emite o <strong>Boletim de Urna</strong>.</li>
+</ul>
+</section>
+
+<!-- ================================================================== 8 -->
+<section id="ref-modelo">
+<h2>9. Referência das classes — <code>modelo/</code></h2>
+<p>Legenda: <span class="selo pub">público</span> <span class="selo prot">_protegido</span>
+<span class="selo priv">__privado</span> <span class="selo prop">@property</span> <span class="selo est">@staticmethod / @classmethod</span>.
+Clique numa classe para abrir. Use a busca para filtrar.</p>
+<input class="ref-busca" id="busca" type="search" placeholder="Buscar classe, método ou atributo (ex.: votos, liberar, __turno)…">
+
+<div id="referencias">
+
+<details class="classe" open>
+<summary><span class="nome">Urna</span><span class="arq">modelo/urna.py</span>
+<span class="resumo">A urna da seção: estados, conexão, liberação, teclas, log, zerésima e BU.</span></summary>
+<div class="corpo">
+<p>Só aceita votos quando está <strong>conectada</strong> e há eleitor <strong>habilitado</strong>. Avisa a interface pelos ouvintes.</p>
+<h4>Construtor</h4>
+<dl class="metodos"><dt>Urna(eleicao, memoria=None)</dt><dd>Começa em <code>PREPARADA</code>, desconectada, e registra "Urna ligada" no log. Se a <code>MemoriaUrna</code> já tem dados, a urna <strong>se recupera</strong> (queda de energia). Atributo de classe <code>VERSAO_MEMORIA = 2</code> (a versão 2 passou a registrar o turno).</dd></dl>
+<h4>Atributos (todos privados)</h4>
+<div class="tabela"><table>
+<tr><th>Atributo</th><th>Tipo</th><th>Por que é privado</th></tr>
+<tr><td><code>__eleicao</code></td><td>Eleicao</td><td>A urna pertence a uma eleição fixa.</td></tr>
+<tr><td><code>__impressora</code></td><td>ImpressoraUrna</td><td>Composição: só a urna imprime seus documentos.</td></tr>
+<tr><td><code>__estado</code></td><td>EstadoUrna</td><td>Só muda por <code>abrir</code>, <code>habilitar</code>, <code>confirmar</code> e <code>encerrar</code>, que conferem as regras.</td></tr>
+<tr><td><code>__conectada</code></td><td>bool</td><td>Só muda por <code>conectar</code>/<code>desconectar</code> (registram no log).</td></tr>
+<tr><td><code>__sessao</code></td><td>SessaoVotacao | None</td><td>Votação em andamento; a interface só lê.</td></tr>
+<tr><td><code>__eleitor_votando</code></td><td>Eleitor | None</td><td>Só para marcar o comparecimento no fim. <strong>Não tem property</strong>: ninguém de fora descobre quem está votando.</td></tr>
+<tr><td><code>__abertura</code>, <code>__encerramento</code></td><td>datetime</td><td>Horários oficiais impressos no BU.</td></tr>
+<tr><td><code>__zeresima</code>, <code>__boletim</code></td><td>Documento</td><td>Emitidos uma única vez; não podem ser trocados.</td></tr>
+<tr><td><code>__log</code></td><td>list</td><td>Exposto como <strong>tupla</strong> (cópia imutável).</td></tr>
+<tr><td><code>__ouvintes</code></td><td>list</td><td>Só se adiciona por <code>adicionar_ouvinte</code>.</td></tr>
+<tr><td><code>__memoria</code></td><td>MemoriaUrna | None</td><td>Memória interna; nos testes de regras fica <code>None</code> (sem disco).</td></tr>
+<tr><td><code>__recuperada</code>, <code>__pendencia_na_queda</code></td><td>bool, ResultadoInterrupcao</td><td>O que aconteceu no religamento.</td></tr>
+</table></div>
+<h4>Properties <span class="selo prop">@property</span> (somente leitura)</h4>
+<p><code>eleicao</code>, <code>codigo</code> (código da urna, vem da seção), <code>estado</code>, <code>conectada</code>, <code>sessao</code>,
+<code>abertura</code>, <code>encerramento</code>, <code>zeresima</code>, <code>boletim</code>, <code>log</code> (tupla de <code>(datetime, mensagem)</code>), <code>recuperada</code>, <code>pendencia_na_queda</code>.</p>
+<h4>Métodos</h4>
+<dl class="metodos">
+<dt><span class="selo pub">pub</span> adicionar_ouvinte(funcao)</dt><dd>Cadastra uma função chamada a cada mudança, recebendo o nome do evento.</dd>
+<dt><span class="selo prot">_</span> _notificar(evento)</dt><dd>Grava a memória (exceto em <code>tecla</code>) e chama todos os ouvintes. Eventos: <code>conexao</code>, <code>estado</code>, <code>liberada</code>, <code>tecla</code>, <code>voto</code>, <code>fim_eleitor</code>, <code>interrompida</code>.</dd>
+<dt><span class="selo prot">_</span> _registrar(mensagem)</dt><dd>Acrescenta <code>(agora, mensagem)</code> ao log e grava a memória.</dd>
+<dt><span class="selo pub">pub</span> conectar() / desconectar()</dt><dd>Liga/desliga o "cabo"; registra no log e notifica <code>conexao</code>. Repetir não faz nada.</dd>
+<dt><span class="selo pub">pub</span> abrir(senha) → Documento</dt><dd>Confere a senha, emite a zerésima, passa para <code>AGUARDANDO_ELEITOR</code> e guarda o horário. <span class="lanca">Lança SenhaIncorreta (e registra a tentativa) ou OperacaoInvalida (já aberta).</span></dd>
+<dt><span class="selo pub">pub</span> encerrar(senha) → Documento</dt><dd>Confere a senha, encerra e emite o BU. <span class="lanca">Lança SenhaIncorreta (e registra a tentativa), UrnaOcupada (eleitor votando), OperacaoInvalida (não está aberta).</span></dd>
+<dt><span class="selo pub">pub</span> verificar_disponivel()</dt><dd>Confere se pode receber um eleitor agora. <span class="lanca">Lança UrnaDesconectada, VotacaoNaoIniciada, VotacaoEncerrada ou UrnaOcupada.</span></dd>
+<dt><span class="selo pub">pub</span> habilitar(eleitor)</dt><dd>Cria a <code>SessaoVotacao</code> e passa para <code>VOTANDO</code>. Segunda barreira das regras. <span class="lanca">Lança as de verificar_disponivel e EleitorJaVotou.</span></dd>
+<dt><span class="selo prot">_</span> _sessao_ativa() → SessaoVotacao</dt><dd>Usado pelas teclas. <span class="lanca">Lança UrnaBloqueada se não houver eleitor liberado.</span></dd>
+<dt><span class="selo pub">pub</span> digitar(digito) / votar_branco() / corrigir() → bool</dt><dd>Repassam a tecla para a sessão e notificam <code>tecla</code>. Devolvem <code>False</code> se a tecla foi ignorada (ex.: BRANCO com número digitado). <span class="lanca">Lançam UrnaBloqueada.</span></dd>
+<dt><span class="selo pub">pub</span> confirmar() → Previa | None</dt><dd>Confirma o voto do cargo atual (registra no log sem conteúdo). Se era o último, finaliza o eleitor. <code>None</code> = não aceito. <span class="lanca">Lança UrnaBloqueada.</span></dd>
+<dt><span class="selo prot">_</span> _finalizar_eleitor()</dt><dd>Marca o comparecimento, descarta a sessão, volta para <code>AGUARDANDO_ELEITOR</code> e notifica <code>fim_eleitor</code>.</dd>
+<dt><span class="selo pub">pub</span> interromper(senha) → ResultadoInterrupcao</dt><dd>Eleitor desistiu: com 0 votos confirmados suspende; com 1 ou mais, anula os restantes e marca o comparecimento. Notifica <code>interrompida</code>. <span class="lanca">Lança SenhaIncorreta (e registra a tentativa) ou OperacaoInvalida (ninguém votando).</span></dd>
+<dt><span class="selo priv">__</span> __salvar() / __fotografia() / __restaurar(dados)</dt><dd>Memória: monta o dicionário com o estado (só contadores e quem votou) e o grava; no religamento, valida a versão, o código da urna e o <strong>turno</strong> e recria tudo.</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">SessaoVotacao</span><span class="arq">modelo/urna.py</span>
+<span class="resumo">A votação de UM eleitor: percorre os cargos na ordem e guarda o que está sendo digitado.</span></summary>
+<div class="corpo">
+<dl class="metodos"><dt>SessaoVotacao(cargos, inicio=0)</dt><dd>Monta as <strong>etapas</strong>: um cargo com 2 vagas (Senado) vira duas etapas. <code>inicio</code> &gt; 0 só é usado na recuperação após queda de energia.</dd></dl>
+<div class="tabela"><table>
+<tr><th>Atributo</th><th>Para quê</th></tr>
+<tr><td><code>__etapas</code></td><td>Lista de <code>(cargo, ordem_do_voto)</code>.</td></tr>
+<tr><td><code>__indice</code></td><td>Etapa atual.</td></tr>
+<tr><td><code>__numero</code>, <code>__branco</code></td><td>O que está digitado agora.</td></tr>
+<tr><td><code>__ja_escolhidos</code></td><td>Números já confirmados por cargo nesta sessão — só para impedir repetir o senador. Some quando a sessão acaba.</td></tr>
+</table></div>
+<p><span class="selo prop">@property</span> <code>finalizada</code>, <code>cargo_atual</code>, <code>ordem_voto</code> (1º/2º voto),
+<code>etapa</code>, <code>total_etapas</code>, <code>numero</code>, <code>em_branco</code>,
+<code>previa</code> (interpreta o número; troca por "CANDIDATO JÁ VOTADO" sem poder confirmar se repetir o senador).</p>
+<p><strong><code>ResultadoInterrupcao</code></strong> (dataclass imutável): <code>eleitor_votou</code>, <code>confirmados</code>, <code>anulados</code> — devolvido por <code>Urna.interromper</code> e guardado em <code>pendencia_na_queda</code>.</p>
+<dl class="metodos">
+<dt>digitar(digito) → bool</dt><dd>Aceita 1 dígito se não estiver em branco e o número não estiver completo.</dd>
+<dt>votar_branco() → bool</dt><dd>Só com o campo vazio.</dd>
+<dt>corrigir() → bool</dt><dd>Limpa número e branco do cargo atual.</dd>
+<dt>confirmar() → Previa | None</dt><dd>Se a prévia permitir, chama <code>cargo.registrar(previa)</code>, avança e limpa o campo.</dd>
+<dt><span class="selo prop">@property</span> votos_confirmados → int</dt><dd>Quantas etapas já foram confirmadas.</dd>
+<dt>anular_restantes() → int</dt><dd>Computa como NULO cada voto que faltava (desistência ou queda de energia).</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">EstadoUrna (Enum)</span><span class="arq">modelo/urna.py</span>
+<span class="resumo">PREPARADA, AGUARDANDO_ELEITOR, VOTANDO, ENCERRADA.</span></summary>
+<div class="corpo"><p>Ver o diagrama em <a href="#estados">6. Estados da urna</a>.</p></div></details>
+
+<details class="classe">
+<summary><span class="nome">TerminalMesario</span><span class="arq">modelo/terminal.py</span>
+<span class="resumo">Identifica o eleitor e libera a urna. Primeira barreira das regras.</span></summary>
+<div class="corpo">
+<p>Atributos privados: <code>__eleicao</code> (para consultar o caderno) e <code>__urna</code> (a ponta do "cabo").</p>
+<dl class="metodos">
+<dt><span class="selo prop">@property</span> conectado → bool</dt><dd>Tem urna e ela está conectada.</dd>
+<dt>conectar(urna) / desconectar()</dt><dd>Liga/desliga o cabo (chama <code>urna.conectar()</code>/<code>desconectar()</code>).</dd>
+<dt><span class="selo prot">_</span> _urna() → Urna</dt><dd>Devolve a urna conectada. <span class="lanca">Lança UrnaDesconectada.</span></dd>
+<dt>consultar(titulo) → Eleitor</dt><dd>Busca no caderno da seção. <span class="lanca">Lança EleitorNaoEncontrado ou EleitorJaVotou.</span></dd>
+<dt>verificar_urna_pronta()</dt><dd>Repassa para <code>urna.verificar_disponivel()</code>.</dd>
+<dt>liberar(eleitor, digital_conferida=False)</dt><dd>Libera a urna. Com biometria, exige a digital conferida; sem biometria, o mesário já conferiu o documento. <span class="lanca">Lança UrnaDesconectada, BiometriaPendente (+ as da urna).</span></dd>
+<dt>abrir_votacao(senha) / encerrar_votacao(senha) / interromper_votacao(senha)</dt><dd>Comandos do presidente da mesa: exigem o cabo conectado e a senha.</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">Eleicao</span> · <span class="nome">Secao</span><span class="arq">modelo/eleicao.py</span>
+<span class="resumo">Agrupa partidos, cargos (na ordem de votação), eleitores e a mesa. Secao guarda UF, município, zona, seção, local e código da urna.</span></summary>
+<div class="corpo">
+<dl class="metodos"><dt>Eleicao(descricao, turno, data, secao, partidos, cargos, eleitores, presidente)</dt>
+<dd>Monta o dicionário <code>__eleitores</code> (título → Eleitor). <span class="lanca">Lança ValueError se houver título repetido ou nenhum cargo.</span></dd></dl>
+<div class="tabela"><table>
+<tr><th>Atributo</th><th>Property</th><th>Detalhe</th></tr>
+<tr><td><code>__descricao</code>, <code>__turno</code>, <code>__data</code></td><td><code>descricao</code>, <code>turno</code>, <code>data</code></td><td>Dados fixos da eleição: somente leitura (ver <a href="#encapsulamento">7.2</a>).</td></tr>
+<tr><td><code>__secao</code></td><td><code>secao</code></td><td><code>Secao</code> é dataclass imutável.</td></tr>
+<tr><td><code>__partidos</code></td><td><code>partidos</code></td><td>Devolve <strong>cópia</strong> do dict.</td></tr>
+<tr><td><code>__cargos</code></td><td><code>cargos</code></td><td>Tupla (imutável), na ordem de votação.</td></tr>
+<tr><td><code>__eleitores</code></td><td><code>eleitores</code></td><td>Devolve <strong>lista nova</strong> ordenada por nome.</td></tr>
+<tr><td><code>__presidente</code></td><td><code>presidente</code></td><td>O <code>Mesario</code> com a senha.</td></tr>
+<tr><td>—</td><td><code>aptos</code>, <code>comparecimento</code></td><td>Calculados na hora.</td></tr>
+</table></div>
+<dl class="metodos"><dt>buscar_eleitor(titulo) → Eleitor</dt><dd><span class="lanca">Lança EleitorNaoEncontrado.</span></dd></dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">Cargo</span> · <span class="nome">Previa</span> · <span class="nome">TipoVoto</span><span class="arq">modelo/cargo.py</span>
+<span class="resumo">Um cargo com seus candidatos, a interpretação do número digitado e a contagem dos votos.</span></summary>
+<div class="corpo">
+<dl class="metodos"><dt>Cargo(codigo, nome, digitos, partidos, proporcional=False, votos_por_eleitor=1)</dt>
+<dd><code>proporcional=True</code> permite legenda; <code>votos_por_eleitor=2</code> para o Senado. <span class="lanca">ValueError se digitos &lt; 2.</span></dd></dl>
+<p><strong>Atributos privados:</strong> <code>__codigo</code>, <code>__nome</code>, <code>__digitos</code>, <code>__partidos</code>,
+<code>__proporcional</code>, <code>__votos_por_eleitor</code>, <code>__candidatos</code> (número → Candidato),
+<code>__legenda</code> (partido → votos), <code>__brancos</code>, <code>__nulos</code>. As contagens só mudam por <code>registrar()</code>.</p>
+<p><span class="selo prop">@property</span> <code>codigo</code>, <code>nome</code>, <code>digitos</code>, <code>proporcional</code>,
+<code>votos_por_eleitor</code>, <code>candidatos</code> (lista ordenada), <code>nominais</code>, <code>legenda_total</code>,
+<code>brancos</code>, <code>nulos</code>, <code>validos</code>, <code>total</code>.</p>
+<dl class="metodos">
+<dt>adicionar_candidato(candidato)</dt><dd><span class="lanca">ValueError se o número tiver dígitos errados ou repetir.</span></dd>
+<dt>buscar(numero) → Candidato | None</dt><dd></dd>
+<dt>candidatos_do_partido(numero_partido) / partidos_participantes()</dt><dd>Usados no BU (agrupamento por partido).</dd>
+<dt>interpretar(numero) → Previa</dt><dd>Regras da tabela em <a href="#regras">8</a>.</dd>
+<dt><span class="selo est">@staticmethod</span> previa_branco() → Previa</dt><dd>A prévia do voto em branco é igual para qualquer cargo.</dd>
+<dt>registrar(previa)</dt><dd>Soma 1 voto conforme o tipo. Não recebe o eleitor: <strong>sigilo</strong>. <span class="lanca">ValueError se a prévia não tiver tipo.</span></dd>
+<dt>votos_legenda(numero_partido) / votos_partido(numero_partido) → int</dt><dd>Legenda; legenda + nominais do partido.</dd>
+</dl>
+<p><strong><code>Previa</code></strong> (dataclass imutável): <code>tipo</code> (TipoVoto ou None), <code>numero</code>,
+<code>candidato</code>, <code>partido</code>, <code>pode_confirmar</code>, <code>aviso</code> ("NÚMERO ERRADO", "CANDIDATO INEXISTENTE",
+"CANDIDATO JÁ VOTADO"). <strong><code>TipoVoto</code></strong> (Enum): NOMINAL, LEGENDA, BRANCO, NULO.</p>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">Candidato</span> · <span class="nome">Vice</span><span class="arq">modelo/candidato.py</span>
+<span class="resumo">Candidato com votos privados; Vice/suplente exibido na tela.</span></summary>
+<div class="corpo">
+<dl class="metodos"><dt>Candidato(numero, nome, partido, vices=())</dt>
+<dd><span class="lanca">ValueError se o número não for numérico, não começar com o número do partido ou o nome estiver vazio.</span></dd></dl>
+<p>Privados: <code>__numero</code>, <code>__nome</code>, <code>__partido</code>, <code>__vices</code> (tupla), <code>__votos</code>.
+Properties: <code>numero</code>, <code>nome</code>, <code>partido</code>, <code>vices</code>, <code>votos</code> — <strong>nenhuma tem setter</strong>.</p>
+<dl class="metodos">
+<dt>receber_voto()</dt><dd>A <strong>única</strong> forma de aumentar <code>__votos</code>. Teste real: <code>c.votos = 1000</code> → <code>AttributeError: property 'votos' of 'Candidato' object has no setter</code>.</dd>
+<dt>__str__()</dt><dd><code>"14 Sabrina Duarte (PAZ)"</code>.</dd>
+</dl>
+<p><code>Vice(titulo, nome)</code>: atributos públicos (<code>titulo</code> = "Vice-Governador", "1º Suplente"…), pois não há regra a proteger.</p>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">Partido</span><span class="arq">modelo/partido.py</span>
+<span class="resumo">Número de 2 dígitos, sigla, nome e cor (usada na roupa da "foto").</span></summary>
+<div class="corpo">
+<dl class="metodos"><dt>Partido(numero, sigla, nome, cor="#777777")</dt><dd>Sigla em maiúsculas. <span class="lanca">ValueError se o número não tiver 2 dígitos ou faltar sigla/nome.</span></dd>
+<dt>__str__()</dt><dd><code>"14 - PAZ"</code>.</dd></dl>
+<p>Privados <code>__numero</code>, <code>__sigla</code>, <code>__nome</code>, <code>__cor</code> com properties de leitura.</p>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">Pessoa</span> → <span class="nome">Eleitor</span>, <span class="nome">Mesario</span><span class="arq">modelo/pessoas.py</span>
+<span class="resumo">Herança: o nome fica na mãe; título/biometria/voto no Eleitor; senha no Mesario.</span></summary>
+<div class="corpo">
+<dl class="metodos">
+<dt>Pessoa(nome)</dt><dd><code>__nome</code> + property <code>nome</code>. <span class="lanca">ValueError se vazio.</span></dd>
+<dt>Eleitor(titulo, nome, possui_biometria=True)</dt><dd>Atributo de classe <code>DIGITOS_TITULO = 12</code>. Privados <code>__titulo</code>, <code>__biometria</code>, <code>__votou</code>. Properties <code>titulo</code>, <code>titulo_formatado</code>, <code>possui_biometria</code>, <code>votou</code>. <span class="lanca">ValueError se o título não tiver 12 dígitos.</span></dd>
+<dt>Eleitor.registrar_comparecimento()</dt><dd>Marca <code>__votou = True</code>. <span class="lanca">EleitorJaVotou se já votou.</span> O eleitor sabe <em>se</em> votou, nunca <em>em quem</em>.</dd>
+<dt>Mesario(nome, senha)</dt><dd><code>__senha</code> <strong>sem property</strong>: a senha nunca sai da classe.</dd>
+<dt>Mesario.autenticar(senha) → bool</dt><dd>Compara sem revelar a senha guardada.</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">ImpressoraUrna</span> · <span class="nome">Documento</span><span class="arq">modelo/boletim.py</span>
+<span class="resumo">Monta a zerésima e o BU (40 colunas) e assina com SHA-256.</span></summary>
+<div class="corpo">
+<p>Atributos de classe: <code>LARGURA = 40</code>, <code>DUPLO = "=" * 40</code>, <code>TRACO = "-" * 40</code>.</p>
+<dl class="metodos">
+<dt>emitir_zeresima(urna) → Documento</dt><dd>Cabeçalho + declaração + resultados (todos zerados) + código.</dd>
+<dt>emitir_boletim(urna) → Documento</dt><dd>Cabeçalho + comparecimento, faltosos, abertura/encerramento + resultados + código.</dd>
+<dt><span class="selo est">@staticmethod</span> calcular_codigo(linhas) → str</dt><dd>SHA-256 do texto em hexadecimal maiúsculo.</dd>
+<dt><span class="selo priv">__</span> __valor(rotulo, valor, recuo=0)</dt><dd>Linha <code>"Rótulo ........ 3"</code> com exatamente 40 colunas.</dd>
+<dt><span class="selo priv">__</span> __centro, __cabecalho, __resultados, __por_partido, __totais, __assinar</dt><dd>Partes do documento. Privados: quem usa só precisa de <code>emitir_*</code>.</dd>
+</dl>
+<p><strong><code>Documento</code></strong> (dataclass imutável): <code>tipo</code>, <code>linhas</code>, <code>codigo</code>, <code>zona</code>, <code>secao</code>, <code>emitido_em</code>.
+Properties <code>texto</code> e <code>nome_arquivo</code> (ex.: <code>BU_Z0001_S0042_20261112_183656</code>).
+Método <code>verificar()</code> recalcula o SHA-256 (ignorando as <code>LINHAS_CODIGO = 5</code> finais) e devolve <code>True</code> se não foi alterado. <code>para_dict()</code> e o <code>@classmethod de_dict(dados)</code> convertem o documento para a memória da urna.</p>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">CarregadorEleicao</span><span class="arq">modelo/carregador.py</span>
+<span class="resumo">Lê dados/eleicao.json e monta todos os objetos.</span></summary>
+<div class="corpo">
+<dl class="metodos">
+<dt>CarregadorEleicao(caminho).carregar() → Eleicao</dt><dd>Lê o JSON (UTF-8) e cria Partidos, Cargos, Candidatos, Eleitores, Secao e Mesario.</dd>
+<dt><span class="selo priv">__</span> __criar_partidos(lista) / __criar_cargo(dados, partidos)</dt><dd>Etapas internas. <span class="lanca">ValueError se um candidato usar partido não cadastrado.</span></dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">MemoriaUrna</span><span class="arq">modelo/memoria.py</span>
+<span class="resumo">Memória interna (não volátil) da urna, gravada em JSON — sobrevive à queda de energia.</span></summary>
+<div class="corpo">
+<p>Guarda só o que a urna real guarda: contadores de votos, quem já votou, horários, documentos e log. <strong>Nunca</strong>
+em quem cada eleitor votou. Privado: <code>__caminho</code>.</p>
+<dl class="metodos">
+<dt>MemoriaUrna(caminho)</dt><dd>Arquivo por seção e turno, por exemplo <code>memoria/urna_Z0001_S0042_T1.json</code> (1º turno) e <code>..._T2.json</code> (2º turno).</dd>
+<dt>existe() / ler() → dict / apagar()</dt><dd>Consulta, lê ou apaga a memória (<code>python main.py --nova</code> apaga).</dd>
+<dt>gravar(dados)</dt><dd>Gravação <strong>atômica</strong>: escreve num <code>.tmp</code> e troca pelo arquivo final.</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">ErroUrna</span> e exceções<span class="arq">modelo/erros.py</span>
+<span class="resumo">Uma exceção por regra violada; todas herdam de ErroUrna.</span></summary>
+<div class="corpo">
+<div class="tabela"><table>
+<tr><th>Exceção</th><th>Quando</th></tr>
+<tr><td><code>UrnaDesconectada</code></td><td>Terminal sem cabo conectado.</td></tr>
+<tr><td><code>UrnaBloqueada</code></td><td>Tecla na urna sem eleitor liberado.</td></tr>
+<tr><td><code>UrnaOcupada</code></td><td>Já há eleitor votando.</td></tr>
+<tr><td><code>VotacaoNaoIniciada</code> / <code>VotacaoEncerrada</code></td><td>Fora do horário de votação.</td></tr>
+<tr><td><code>EleitorNaoEncontrado</code></td><td>Título de outra seção (também é <code>LookupError</code>).</td></tr>
+<tr><td><code>EleitorJaVotou</code></td><td>Tentativa de votar de novo.</td></tr>
+<tr><td><code>BiometriaPendente</code></td><td>Digital ainda não conferida.</td></tr>
+<tr><td><code>SenhaIncorreta</code></td><td>Senha do presidente errada.</td></tr>
+<tr><td><code>OperacaoInvalida</code></td><td>Operação fora de ordem (abrir duas vezes, interromper sem ninguém votando…).</td></tr>
+</table></div>
+</div></details>
+
+</div>
+</section>
+
+<!-- ================================================================== 9 -->
+<section id="ref-interface">
+<h2>10. Referência das classes — <code>interface/</code></h2>
+<div id="referencias2">
+
+<details class="classe">
+<summary><span class="nome">TelaUrna</span> · <span class="nome">JanelaUrna</span><span class="arq">interface/janela_urna.py</span>
+<span class="resumo">A urna desenhada à mão com o Pincel; transforma cliques e teclas em chamadas ao modelo.</span></summary>
+<div class="corpo">
+<p>Tudo é desenhado num "papel" lógico de <code>LARGURA × ALTURA = 1200 × 720</code> e escalado para o tamanho da janela —
+a urna fica proporcional em qualquer tela. Atributos de classe: <code>TELA</code>, <code>PAINEL</code> (retângulos),
+<code>FIM_SEGUNDOS = 4.0</code>, <code>BLOQUEIO_SEGUNDOS = 2.5</code>, <code>CORES_TECLAS</code>.</p>
+<dl class="metodos">
+<dt>TelaUrna(urna, sons)</dt><dd>Estado visual: <code>_teclas</code>, <code>_pressionada</code>, <code>_piscar</code>, <code>_bloqueio_ate</code>, <code>_fim_ate</code>, <code>_relogio</code> (QTimer de 450 ms para o cursor/“VOTO NULO” piscarem e o relógio andar).</dd>
+<dt>mostrar_aviso(titulo, subtitulo, cor, segundos) / desligar()</dt><dd>Faixa colorida sobre a tela (bloqueio, interrupção, energia restabelecida); <code>desligar</code> apaga a tela e os LEDs (queda de energia).</dd>
+<dt>acionar(nome)</dt><dd>Repassa a tecla à urna (sem energia, ignora). <code>UrnaBloqueada</code> → bipe de erro + faixa vermelha por 2,5 s. Escolhe o som: tecla, confirma ou fim (e mostra FIM por 4 s).</dd>
+<dt>_montar_teclas() / _escala() / _tecla_em(pos)</dt><dd>Posição das teclas; fator de escala; converte o clique para coordenadas lógicas.</dd>
+<dt>mousePressEvent / mouseReleaseEvent / mouseMoveEvent / keyPressEvent</dt><dd>Sobrescritas do Qt. Teclado: 0–9, Enter = CONFIRMA, Backspace/Delete/Esc = CORRIGE, B/espaço = BRANCO.</dd>
+<dt>paintEvent → _desenhar_corpo, _desenhar_tela, _desenhar_teclas, _desenhar_leds</dt><dd>Desenho por partes.</dd>
+<dt>_tela_votacao, _caixas_numero, _detalhes, _fotos, _linha_info</dt><dd>A tela "SEU VOTO PARA": número, nome, partido, vices, fotos, avisos, rodapé CONFIRMA/CORRIGE.</dd>
+<dt>_tela_espera, _tela_fim, _tela_mensagem, _faixa_bloqueio, _rodape_secao</dt><dd>Demais telas: aguardando, FIM, preparada/desconectada/encerrada, bloqueio, rodapé com seção e relógio.</dd>
+<dt>JanelaUrna(urna, sons)</dt><dd><code>QMainWindow</code> que contém a <code>TelaUrna</code>. <code>atualizar(evento)</code> redesenha (e mostra a faixa no evento <code>interrompida</code>); <code>desligar()</code> e <code>avisar_religamento()</code> para a queda de energia; <code>closeEvent</code> fecha o programa.</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">JanelaTerminal</span> · <span class="nome">Modo</span><span class="arq">interface/janela_terminal.py</span>
+<span class="resumo">Aparelho do mesário (display, teclado, leitor) + painel do presidente, caderno e log.</span></summary>
+<div class="corpo">
+<p>Atributos de classe: <code>COLUNAS_DISPLAY = 24</code> e <code>ESTILO</code> (folha de estilo Qt).
+<code>Modo</code> (Enum) controla o display: TITULO, CONFIRMAR_ELEITOR, BIOMETRIA, LENDO, VOTANDO, MENSAGEM e SENHA. Atributo de classe <code>TAMANHO_MAX_SENHA = 8</code>.</p>
+<dl class="metodos">
+<dt>JanelaTerminal(terminal, urna, sons, exportador)</dt><dd>Recebe as dependências prontas (criadas pela <code>Aplicacao</code>).</dd>
+<dt>_montar_aparelho / _montar_painel / _botao</dt><dd>Constroem os widgets.</dd>
+<dt>_tecla(nome) / keyPressEvent</dt><dd>Teclado do terminal conforme o <code>Modo</code>.</dd>
+<dt>_consultar()</dt><dd>Chama <code>terminal.consultar</code> e <code>verificar_urna_pronta</code>; cada exceção vira uma mensagem no display. "Já votou" limpa o título.</dd>
+<dt>_prosseguir() / _ler_digital() / _liberar(digital_conferida)</dt><dd>Com biometria: leitor pisca → clique → "LENDO..." 1,3 s → <code>terminal.liberar</code>. Sem biometria: o visor pede o documento com foto e CONFIRMA libera direto.</dd>
+<dt>_mensagem(linhas, ms, som) / _fim_mensagem(ident)</dt><dd>Aviso temporário; o <code>_msg_id</code> descarta temporizadores antigos. Se alguém está votando, o display volta a "ELEITOR VOTANDO".</dd>
+<dt>_interromper() / _confirmar_interrupcao()</dt><dd>Botão de desistência (só com alguém votando): pede a senha no visor (modo SENHA com ação "interromper"; CORRIGE volta à votação) e mostra "VOTAÇÃO SUSPENSA" ou "VOTAÇÃO INTERROMPIDA".</dd>
+<dt>_simular_queda() / desligar() / avisar_religamento()</dt><dd>Botão ⚡: chama a função <code>ao_simular_queda</code> que a <code>Aplicacao</code> cadastrou; apaga display, LEDs e controles; depois mostra o resumo recuperado.</dd>
+<dt>_atualizar_display / _titulo_mascarado / _cortar / _quebrar</dt><dd>Montam as 4 linhas de 24 colunas do LCD.</dd>
+<dt>_alternar_cabo / _ver_documentos / _exibir</dt><dd>Painel do presidente: cabo e documentos emitidos.</dd>
+<dt>_abrir() / _encerrar() / _pedir_senha(acao) / _tecla_senha(nome) / _confirmar_senha()</dt><dd>Abertura e encerramento <strong>pelo visor</strong>. <code>_abrir</code> (urna preparada e cabo conectado) e <code>_encerrar</code> (urna livre) chamam <code>_pedir_senha("abrir"|"encerrar")</code>, que põe o terminal no modo SENHA; <code>_tecla_senha</code> recebe os dígitos (mascarados com *), CORRIGE sai; <code>_confirmar_senha</code> chama <code>terminal.abrir_votacao(senha)</code> ou <code>encerrar_votacao(senha)</code>, trata <code>SenhaIncorreta</code> com aviso no display e <strong>apaga a senha da memória</strong> logo após o uso.</dd>
+<dt>atualizar(evento)</dt><dd>Ouvinte da urna: LEDs, botões, estatísticas, caderno, log, display; trata <code>fim_eleitor</code> e o encerramento.</dd>
+<dt>_atualizar_caderno / _usar_caderno / _atualizar_log</dt><dd>Tabela de eleitores (✔ Votou, Votando…, Aguardando) e lista de eventos.</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">LeitorBiometrico</span> · <span class="nome">Led</span><span class="arq">interface/janela_terminal.py</span>
+<span class="resumo">Widgets desenhados: leitor de digital simulado e luz indicadora.</span></summary>
+<div class="corpo">
+<dl class="metodos">
+<dt>LeitorBiometrico</dt><dd>Sinal Qt <code>tocado</code> (atributo de classe <code>Signal()</code>). Estados: inativo, aguardando (pulsa), lendo (linha de varredura), ok. <code>definir_estado()</code>, <code>_animar()</code> (40 ms), <code>mousePressEvent</code> emite <code>tocado</code>.</dd>
+<dt>Led(rotulo, cor)</dt><dd><code>definir(ligado)</code> acende/apaga; <code>paintEvent</code> desenha o brilho.</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">Pincel</span> (herda de QPainter)<span class="arq">interface/desenho.py</span>
+<span class="resumo">QPainter com métodos extras: escrever, escrever_partes, foto.</span></summary>
+<div class="corpo">
+<dl class="metodos">
+<dt>Pincel(dispositivo)</dt><dd>Chama <code>super().__init__</code> e liga o antisserrilhado.</dd>
+<dt><span class="selo est">@classmethod</span> fonte(px, negrito, mono) / largura(conteudo, px, negrito)</dt><dd>Fonte em pixels (escala com o desenho); largura do texto.</dd>
+<dt>escrever(rect, conteudo, px, negrito, cor, alinhar) / escrever_partes(x, y, partes, px)</dt><dd>Texto simples ou com trechos em negrito ("<strong>CONFIRMA</strong> para CONFIRMAR…").</dd>
+<dt>foto(rect, nome, cor_partido)</dt><dd>Retrato ilustrado: pele e cabelo variam pelo nome; roupa na cor do partido. Dispensa imagens.</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">DialogoDocumento</span> · <span class="nome">ExportadorDocumento</span><span class="arq">interface/dialogo_documento.py · exportar.py</span>
+<span class="resumo">Mostra o documento como bobina e salva em .txt/.pdf.</span></summary>
+<div class="corpo">
+<dl class="metodos">
+<dt>DialogoDocumento(documento, caminhos, pai)</dt><dd>Papel com fonte monoespaçada, aviso "✔ código de verificação confere" (chama <code>documento.verificar()</code>), botões Abrir PDF / Abrir pasta.</dd>
+<dt>ExportadorDocumento(pasta)</dt><dd>Atributos de classe <code>LARGURA_PAPEL_MM = 80</code>, <code>ENTRELINHA_MM</code>, <code>MARGEM_MM</code>. <code>caminhos(doc)</code>, <code>salvar(doc)</code> e o privado <code>__gerar_pdf</code> (QPdfWriter, 300 dpi, altura calculada pelo nº de linhas).</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">Sons</span><span class="arq">interface/sons.py</span>
+<span class="resumo">Bipes gerados por código (sem arquivos de áudio).</span></summary>
+<div class="corpo">
+<dl class="metodos">
+<dt>Sons(ativo=True)</dt><dd>Gera os .wav na pasta temporária e carrega com <code>QSoundEffect</code>. Sem QtMultimedia, funciona em silêncio.</dd>
+<dt>tocar(nome)</dt><dd><code>tecla</code>, <code>confirma</code>, <code>fim</code>, <code>erro</code>, <code>liberado</code>. <span class="selo prop">@property</span> <code>disponiveis</code>.</dd>
+<dt><span class="selo priv">__</span> __gerar_wav(caminho, sequencia, volume)</dt><dd>Sintetiza senoides com rampa de 5 ms (atributos de classe <code>TAXA</code> e <code>SEQUENCIAS</code>).</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">Creditos</span><span class="arq">interface/creditos.py</span>
+<span class="resumo">Mensagem de desenvolvimento exibida no rodapé das duas janelas.</span></summary>
+<div class="corpo">
+<p>Atributos de classe <code>ALUNO</code>, <code>PROFESSOR</code>, <code>MODULO</code>, <code>INSTITUICAO</code> e <code>ANO</code>:
+os créditos ficam em <strong>um só lugar</strong>, e as duas janelas usam o mesmo texto.</p>
+<dl class="metodos">
+<dt><span class="selo est">@classmethod</span> texto() → str</dt><dd>"Desenvolvido por … com os conceitos aprendidos nas aulas do Prof. Esp. Ibukun Didier • Programação em Python — ITEAM 2026".</dd>
+<dt><span class="selo est">@classmethod</span> instalar_rodape(janela, escuro=False) → QLabel</dt><dd>Põe o texto na barra de status (rodapé) de uma <code>QMainWindow</code>, numa linha só (tema escuro na urna, claro no terminal). Não precisa criar um objeto: é <code>@classmethod</code> porque só usa os atributos da classe.</dd>
+</dl>
+</div></details>
+
+<details class="classe">
+<summary><span class="nome">Aplicacao</span><span class="arq">main.py</span>
+<span class="resumo">Ponto de entrada: cria o modelo, as janelas e liga os ouvintes.</span></summary>
+<div class="corpo">
+<dl class="metodos">
+<dt>Aplicacao(argumentos)</dt><dd>Cria <code>QApplication</code> (privado <code>__qt</code>), carrega a eleição, cria <code>Urna</code>, <code>TerminalMesario</code>, <code>Sons</code>, <code>ExportadorDocumento</code> e as duas janelas; cadastra as janelas como ouvintes.</dd>
+<dt>executar() → int</dt><dd>Posiciona, mostra as janelas e roda o laço de eventos do Qt.</dd>
+<dt><span class="selo priv">__</span> __escolher_eleicao(argumentos)</dt><dd><code>--eleicao arquivo.json</code> escolhe outra eleição (ex.: 2º turno); o padrão é <code>dados/eleicao.json</code>.</dd>
+<dt><span class="selo priv">__</span> __preparar_memoria(argumentos)</dt><dd>Com votação gravada, pergunta se continua ou começa nova; <code>--nova</code> apaga direto.</dd>
+<dt><span class="selo priv">__</span> __montar()</dt><dd>Cria eleição, <code>Urna(eleicao, memoria)</code>, terminal (reconecta o cabo se estava ligado), janelas e ouvintes.</dd>
+<dt><span class="selo priv">__</span> __simular_queda() / __religar()</dt><dd>Desliga as janelas, espera <code>SEGUNDOS_SEM_ENERGIA = 3</code> e recria tudo do zero com <code>__montar()</code>, mantendo a posição das janelas.</dd>
+<dt><span class="selo priv">__</span> __posicionar()</dt><dd>Terminal à esquerda, urna à direita, cabendo na tela.</dd>
+</dl>
+<pre><code><span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    sys.exit(Aplicacao(sys.argv).executar())</code></pre>
+</div></details>
+
+</div>
+</section>
+
+<!-- ================================================================== 10 -->
+<section id="json">
+<h2>11. Arquivo <code>dados/eleicao.json</code></h2>
+<p>Todos os dados da eleição ficam fora do código. Para trocar candidatos, eleitores ou a senha, basta editar o JSON. O 2º turno é só <strong>outro arquivo</strong> (<code>dados/eleicao_2turno.json</code>) com <code>"turno": 2</code>, a data do 2º turno e um único cargo — nenhuma linha de código muda:</p>
+<pre><code>{
+  <span class="s">"eleicao"</span>: { <span class="s">"descricao"</span>: "Eleições Gerais 2026 (simulação)", <span class="s">"turno"</span>: 2, <span class="s">"data"</span>: "25/10/2026" },
+  <span class="s">"cargos"</span>: [
+    { <span class="s">"codigo"</span>: "PR", <span class="s">"nome"</span>: "Presidente", <span class="s">"digitos"</span>: 2,
+      <span class="s">"candidatos"</span>: [ { <span class="s">"numero"</span>: "14", ... }, { <span class="s">"numero"</span>: "27", ... } ] }
+  ],
+  ...  <span class="c">seção, partidos, mesa e eleitores iguais ao 1º turno</span>
+}</code></pre>
+<pre><code>{
+  <span class="s">"eleicao"</span>: { <span class="s">"descricao"</span>: "Eleições Gerais 2026 (simulação)", <span class="s">"turno"</span>: 1, <span class="s">"data"</span>: "04/10/2026" },
+  <span class="s">"secao"</span>:   { <span class="s">"uf"</span>: "RR", <span class="s">"municipio"</span>: "Boa Vista", <span class="s">"zona"</span>: "0001", <span class="s">"secao"</span>: "0042",
+               <span class="s">"local"</span>: "...", <span class="s">"codigo_urna"</span>: "2026.0001.0042" },
+  <span class="s">"mesa"</span>:    { <span class="s">"presidente"</span>: "Presidente da Mesa", <span class="s">"senha"</span>: "1234" },
+  <span class="s">"partidos"</span>: [ { <span class="s">"numero"</span>: "14", <span class="s">"sigla"</span>: "PAZ", <span class="s">"nome"</span>: "...", <span class="s">"cor"</span>: "#2e7d32" } ],
+  <span class="s">"cargos"</span>: [
+    { <span class="s">"codigo"</span>: "DF", <span class="s">"nome"</span>: "Deputado Federal", <span class="s">"digitos"</span>: 4, <span class="s">"proporcional"</span>: true,
+      <span class="s">"candidatos"</span>: [ { <span class="s">"numero"</span>: "1401", <span class="s">"nome"</span>: "Ana Beatriz Moura" } ] },
+    { <span class="s">"codigo"</span>: "SE", <span class="s">"nome"</span>: "Senador", <span class="s">"digitos"</span>: 3, <span class="s">"votos_por_eleitor"</span>: 2,
+      <span class="s">"candidatos"</span>: [ { <span class="s">"numero"</span>: "141", <span class="s">"nome"</span>: "Neusa Barreto",
+                       <span class="s">"vices"</span>: [ { <span class="s">"titulo"</span>: "1º Suplente", <span class="s">"nome"</span>: "Osmar Teles" } ] } ] }
+  ],
+  <span class="s">"eleitores"</span>: [ { <span class="s">"titulo"</span>: "000123450101", <span class="s">"nome"</span>: "João Pereira da Silva", <span class="s">"biometria"</span>: true } ]
+}</code></pre>
+<ul>
+  <li>A <strong>ordem</strong> de <code>"cargos"</code> é a ordem de votação na urna.</li>
+  <li>O número do candidato deve <strong>começar com o número do partido</strong> e ter os dígitos do cargo — senão o carregamento falha com mensagem clara.</li>
+  <li><code>"biometria": false</code> = o eleitor é liberado pela conferência do <strong>documento com foto</strong>.</li>
+</ul>
+</section>
+
+<!-- ================================================================== 11 -->
+<section id="boletim">
+<h2>12. Zerésima e Boletim de Urna</h2>
+<div class="grade">
+  <div class="cartao"><h4>Zerésima</h4><p>Emitida na <strong>abertura</strong>. Lista todos os candidatos com <strong>0 votos</strong>,
+  provando que a urna começou vazia.</p></div>
+  <div class="cartao"><h4>Boletim de Urna (BU)</h4><p>Emitido no <strong>encerramento</strong>: aptos, comparecimento, faltosos,
+  horários, votos por partido/candidato, legenda, brancos, nulos e total apurado de cada cargo.</p></div>
+</div>
+<pre><code>========================================
+            BOLETIM DE URNA
+ *** SIMULAÇÃO - SEM VALOR OFICIAL ***
+========================================
+Eleitores aptos ...................... 8
+Comparecimento ....................... 2
+...
+               GOVERNADOR
+----------------------------------------
+14 SABRINA DUARTE (PAZ) .............. 1
+27 UBIRAJARA MELO (MUC) .............. 1
+----------------------------------------
+Votos nominais ....................... 2
+Total apurado ........................ 2
+========================================
+Código de verificação (SHA-256):
+F75F 85DB E0A1 B187 6896 4C98 33EC 3A48
+0370 E873 5D9A 9893 2903 88EC 0D83 D151</code></pre>
+<h3>Código de verificação (SHA-256)</h3>
+<p>O SHA-256 é uma "impressão digital" do texto: qualquer alteração — mesmo de um único voto — gera um código
+completamente diferente. <code>Documento.verificar()</code> recalcula o código e compara; a janela do BU mostra
+"✔ código de verificação confere". Os arquivos ficam em <code>boletins/</code> como <code>.txt</code> e como
+<code>.pdf</code> no formato de bobina de 80 mm.</p>
+</section>
+
+<!-- ================================================================== 12 -->
+<section id="testes">
+<h2>13. Testes automáticos</h2>
+<p><code>testes/test_modelo.py</code> e <code>testes/test_memoria.py</code> usam <code>unittest</code> e testa só o modelo (sem abrir janelas) — possível graças à separação em camadas.</p>
+<div class="tabela"><table>
+<tr><th>Teste</th><th>O que garante</th></tr>
+<tr><td><code>test_sem_cabo_nao_libera</code></td><td>Sem cabo não abre a votação nem libera eleitor.</td></tr>
+<tr><td><code>test_teclado_bloqueado_sem_liberacao</code></td><td>Teclas da urna lançam <code>UrnaBloqueada</code> sem liberação.</td></tr>
+<tr><td><code>test_abertura_exige_senha</code></td><td>Senha errada não abre a votação, não emite zerésima e fica no log.</td></tr>
+<tr><td><code>test_votacao_nao_iniciada</code></td><td>Não libera antes da zerésima.</td></tr>
+<tr><td><code>test_biometria_e_titulo</code></td><td>Título inexistente, digital pendente e urna ocupada.</td></tr>
+<tr><td><code>test_sem_biometria_vota_com_documento</code></td><td>Eleitor sem biometria é liberado sem a digital e vota.</td></tr>
+<tr><td><code>test_interromper_sem_voto_confirmado_suspende</code></td><td>Desistência sem voto: suspensa, eleitor pode voltar; senha errada recusada.</td></tr>
+<tr><td><code>test_interromper_com_votos_anula_restantes</code></td><td>Confirmados valem, restantes viram nulos, BU continua fechando.</td></tr>
+<tr><td><code>test_caderno_e_votos_sobrevivem_a_queda</code></td><td><em>test_memoria</em>: após a queda, caderno, votos, cabo, zerésima e log são recuperados e a votação continua até o BU.</td></tr>
+<tr><td><code>test_queda_com_eleitor_no_meio_da_votacao</code></td><td><em>test_memoria</em>: eleitor com 2 votos confirmados na queda → 4 nulos e consta como votou.</td></tr>
+<tr><td><code>test_queda_antes_do_primeiro_voto_suspende</code></td><td><em>test_memoria</em>: sem voto confirmado na queda → pode votar de novo.</td></tr>
+<tr><td><code>test_urna_encerrada_continua_encerrada</code></td><td><em>test_memoria</em>: BU recuperado e com código válido.</td></tr>
+<tr><td><code>test_memoria_do_1o_turno_nao_vaza_para_o_2o</code></td><td><em>test_memoria</em>: memória do 1º turno é recusada no 2º; quem votou no 1º pode votar no 2º.</td></tr>
+<tr><td><code>test_memoria_nao_liga_eleitor_ao_voto</code></td><td><em>test_memoria</em>: a memória só tem contadores (sigilo).</td></tr>
+<tr><td><code>test_fluxo_completo_e_boletim</code></td><td>Dois eleitores votam (nominal, legenda, branco, nulo, Senado 2 votos); contagens, senha, BU com 40 colunas e código válido.</td></tr>
+<tr><td><code>test_regras_do_teclado</code></td><td>BRANCO só com campo vazio; CONFIRMA não aceita número incompleto.</td></tr>
+<tr><td><code>test_senado_nao_aceita_mesmo_candidato</code></td><td>2º voto ao Senado não repete o 1º.</td></tr>
+<tr><td><code>test_segundo_turno_so_presidente</code></td><td>2º turno com só Presidente: um CONFIRMA já encerra o eleitor; BU com "2º turno" e sem outros cargos.</td></tr>
+<tr><td><code>test_interpretacao</code></td><td>Tabela de nominal/legenda/nulo de <code>Cargo.interpretar</code>.</td></tr>
+</table></div>
+<pre><code>$ python -m unittest discover -s testes -t .
+...................
+Ran 19 tests
+OK</code></pre>
+</section>
+
+<!-- ================================================================== 13 -->
+<section id="explicacoes" class="faq">
+<h2>14. Explicações sobre as decisões do projeto</h2>
+<p>Esta seção resume, com as palavras do autor, o porquê das principais escolhas de implementação.</p>
+
+<h4>Diferença entre <code>_turno</code> e <code>__turno</code></h4>
+<p><code>_turno</code> é só um aviso de "uso interno": o Python não muda nada. <code>__turno</code> ativa o <em>name mangling</em>:
+o atributo passa a se chamar <code>_Eleicao__turno</code>, por isso <code>eleicao.__turno</code> gera <code>AttributeError</code> e as
+subclasses não colidem com o mesmo nome. Usamos <code>__</code> nos dados que representam as regras da eleição.</p>
+
+<h4>Para que serve <code>__</code>, se dá para acessar <code>_Eleicao__turno</code></h4>
+<p>O objetivo é evitar <strong>acidentes</strong>, não ataques. O <code>__</code> deixa explícito o que é interno e impede que um trecho
+de código altere uma regra sem perceber; quem escreve <code>_Eleicao__turno</code> sabe que está quebrando o encapsulamento.</p>
+
+<h4>Por que <code>@property</code> em vez de métodos <code>get_...()</code></h4>
+<p>É a forma "pythônica": quem usa a classe escreve <code>eleicao.turno</code> como se fosse um atributo, mas a classe controla o
+acesso — sem <em>setter</em>, o valor é somente leitura — e pode calcular o resultado na hora, como em <code>Cargo.total</code>.</p>
+
+<h4>Como o sigilo do voto é garantido</h4>
+<p>O voto confirmado vai direto para os contadores do <code>Cargo</code>; não existe nenhuma ligação eleitor → candidato. O eleitor guarda
+apenas <code>votou</code>, o log não registra nome nem candidato, a <code>SessaoVotacao</code> é descartada no fim e a memória gravada em
+disco contém só contadores e a lista de quem já votou.</p>
+
+<h4>Comportamento quando o cabo é desconectado</h4>
+<p>O eleitor que já está votando termina normalmente (como na urna real, que funciona sozinha), mas nenhum novo eleitor é liberado até
+reconectar (<code>UrnaDesconectada</code>), e a urna mostra o aviso "TERMINAL DO MESÁRIO DESCONECTADO".</p>
+
+<h4>Uma responsabilidade por classe (Aula 10)</h4>
+<p>Uma classe com muitas responsabilidades é difícil de manter: se a <code>Urna</code> também lesse o teclado e desenhasse a tela, mudar a
+interface obrigaria a mexer nas regras da eleição. Por isso: <code>Urna</code> = regras, <code>ImpressoraUrna</code> = documentos,
+<code>MemoriaUrna</code> = gravação, <code>TelaUrna</code> = desenho, <code>ExportadorDocumento</code> = arquivos.</p>
+
+<h4>Biometria: o que é simulado e o que é regra</h4>
+<p>A <strong>leitura</strong> da digital é simulada (um clique aprova). A <strong>regra</strong> é real no código: com biometria cadastrada a
+liberação exige a digital conferida (<code>BiometriaPendente</code>); sem biometria, o mesário confere o documento com foto. As duas
+situações são garantidas pelo modelo e pelos testes.</p>
+
+<h4>Eleitor que desiste no meio da votação</h4>
+<p>O presidente da mesa usa <em>Interromper votação do eleitor</em> com a senha. Sem nenhum voto confirmado, a votação é suspensa e o
+eleitor pode voltar; com pelo menos um, os votos confirmados valem e os restantes são computados como nulos (<code>Urna.interromper</code>).
+Assim o boletim continua fechando: em cada cargo, total apurado = comparecimento × votos por eleitor.</p>
+
+<h4>Queda de energia sem perda de votos</h4>
+<p>A <code>MemoriaUrna</code> grava o estado a cada evento, de forma atômica. Ao religar, <code>Urna(eleicao, memoria)</code> recupera votos,
+caderno, log e documentos — o que pode ser demonstrado com o botão ⚡ e está comprovado em <code>testes/test_memoria.py</code>.</p>
+
+<h4>Segundo turno sem alterar o código</h4>
+<p>Como os cargos vêm do JSON e a <code>SessaoVotacao</code> é montada a partir deles, o 2º turno é só outro arquivo de dados.
+O único cuidado foi na memória da urna: ela passou a registrar o turno e a usar um arquivo por turno, para que os votos e o caderno
+do 1º turno nunca apareçam no 2º — defeito encontrado ao testar o 2º turno e coberto por teste.</p>
+
+<h4>Onde estão herança e polimorfismo</h4>
+<p><strong>Herança:</strong> <code>Pessoa → Eleitor/Mesario</code>, <code>ErroUrna → 10 exceções</code>, <code>Pincel(QPainter)</code> e as
+janelas do Qt. <strong>Polimorfismo:</strong> <code>except ErroUrna</code> trata qualquer exceção filha; <code>paintEvent</code> e
+<code>keyPressEvent</code> são sobrescritos; <code>__str__</code> define como cada objeto aparece em <code>print()</code>.</p>
+</section>
+
+<!-- ================================================================== 15 -->
+<section id="fontes">
+<h2>15. Fontes utilizadas</h2>
+<p>As regras de negócio do simulador foram construídas a partir das fontes abaixo. Onde a regra é uma simplificação
+didática ou não pôde ser conferida no documento oficial, isso está indicado.</p>
+
+<div class="tabela"><table>
+<tr><th>Fonte</th><th>O que foi usado no projeto</th><th>Observação</th></tr>
+<tr>
+  <td><strong>Slides do curso Programação em Python</strong> — Aulas 01 a 10. Esp. Ibukun Didier. Capacitação em
+  Desenvolvimento Full Stack, ITEAM, Boa Vista/RR, 2026.</td>
+  <td>Enunciado do Projeto Integrador (Aula 06): candidatos, eleitores, voto único e sigiloso, entradas inválidas tratadas com
+  <code>try/except</code>, lógica em classes com encapsulamento, apuração com votos válidos, percentual e vencedor. Conceitos de
+  classes, objetos, <code>__init__</code>, <code>self</code>, herança, encapsulamento, <code>@property</code> e polimorfismo
+  (Aulas 08 e 09). Rubrica de revisão e roteiro de apresentação (Aula 10).</td>
+  <td>Fonte principal dos requisitos e dos conceitos.</td>
+</tr>
+<tr>
+  <td><strong>Minha Colinha — simulador de votação</strong>.
+  <a href="https://minhacolinha.com/simulador">minhacolinha.com/simulador</a> e
+  <a href="https://minhacolinha.com/colinha-eleitoral">minhacolinha.com/colinha-eleitoral</a>.</td>
+  <td>Ordem dos cargos nas Eleições Gerais de 2026 e quantidade de dígitos (Deputado Federal 4, Deputado Estadual 5, Senador 3 com
+  dois votos independentes, Governador 2, Presidente 2); tecla BRANCO só com o campo vazio; CORRIGE reinicia o voto; CONFIRMA não
+  permite voltar; exibição de foto, vice e suplentes; não repetir o mesmo senador.</td>
+  <td>Consultado em 12/11/2026. Referência visual e de comportamento da urna.</td>
+</tr>
+<tr>
+  <td><strong>Manual do Mesário — Eleições 2022</strong>. Justiça Eleitoral / Tribunal Superior Eleitoral (TSE).
+  <a href="https://www.justicaeleitoral.jus.br/eleicoes/mesario/assets/arquivos/manual-do-mesario-2022-digital.pdf">manual-do-mesario-2022-digital.pdf</a>.</td>
+  <td>Referência para os procedimentos da seção eleitoral: zerésima, identificação do eleitor, biometria ou documento com foto,
+  liberação pelo terminal do mesário, eleitor que não conclui o voto, encerramento e boletim de urna.</td>
+  <td>O site recusou o acesso automatizado durante o desenvolvimento. As regras de <strong>eleitor sem biometria</strong> e de
+  <strong>desistência</strong> seguiram o procedimento usual conhecido e <strong>devem ser conferidas</strong> no manual.</td>
+</tr>
+<tr>
+  <td><strong>Conhecimento geral do processo eleitoral brasileiro</strong>.</td>
+  <td>Voto nominal, de legenda (cargos proporcionais), branco e nulo; terminal do mesário ligado à urna por cabo; zerésima antes da
+  votação; boletim de urna no encerramento; log de eventos; sigilo do voto; memória interna que preserva os votos.</td>
+  <td>Simplificado para fins didáticos. Datas usadas: 1º turno em 04/10/2026 e 2º turno em 25/10/2026.</td>
+</tr>
+<tr>
+  <td><strong>Documentação oficial das ferramentas</strong>: Python 3 (<a href="https://docs.python.org/3/">docs.python.org/3</a>)
+  e Qt for Python / PySide6 (<a href="https://doc.qt.io/qtforpython-6/">doc.qt.io/qtforpython-6</a>).</td>
+  <td>Linguagem, biblioteca padrão (<code>json</code>, <code>hashlib</code>, <code>dataclasses</code>, <code>enum</code>,
+  <code>unittest</code>) e componentes gráficos (janelas, <code>QPainter</code>, sons, geração de PDF).</td>
+  <td>Referência técnica.</td>
+</tr>
+</table></div>
+
+<h3>Decisões próprias e simplificações em relação ao processo real</h3>
+<ul>
+  <li><strong>Senha do presidente da mesa</strong> digitada no visor do terminal para abrir, encerrar e interromper a votação.</li>
+  <li><strong>Leitura biométrica simulada</strong>: um clique no leitor sempre aprova a digital (não há falha de leitura).</li>
+  <li><strong>Boletim de Urna</strong> emitido em uma via digital (<code>.txt</code> e <code>.pdf</code>) com código de verificação SHA-256,
+  sem as vias impressas, assinaturas e QR Code do processo real.</li>
+  <li><strong>Memória da urna</strong> representada por um arquivo JSON.</li>
+  <li><strong>Sem horários fixos</strong> de abertura e encerramento, justificativa de ausência, recursos de acessibilidade ou urna de contingência.</li>
+  <li><strong>Dados fictícios</strong>: partidos, candidatos e eleitores foram criados para a simulação; documentos sem valor oficial.</li>
+</ul>
+</section>
+
+<p class="rodape"><strong>Desenvolvido por Ivonielson F. com os conceitos aprendidos nas aulas do
+Prof. Esp. Ibukun Didier</strong> • Programação em Python — Capacitação em Desenvolvimento Full Stack • ITEAM 2026.<br>
+Simulador de Urna Eletrônica — Projeto Integrador. Simulação educacional: partidos, candidatos e eleitores fictícios;
+documentos sem valor oficial.</p>
+
+</main>
+</div>
+
+<script>
+(function () {
+  // tema claro/escuro (lembra a escolha neste navegador, se possível)
+  var raiz = document.documentElement;
+  try { var salvo = localStorage.getItem("tema-doc-urna"); if (salvo) raiz.setAttribute("data-theme", salvo); } catch (e) {}
+  document.getElementById("botaoTema").addEventListener("click", function () {
+    var escuroAgora = raiz.getAttribute("data-theme") === "dark" ||
+      (!raiz.getAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var novo = escuroAgora ? "light" : "dark";
+    raiz.setAttribute("data-theme", novo);
+    try { localStorage.setItem("tema-doc-urna", novo); } catch (e) {}
+  });
+
+  // ao imprimir: abre os cartões da referência e carrega todas as imagens
+  window.addEventListener("beforeprint", function () {
+    document.querySelectorAll("details").forEach(function (d) { d.open = true; });
+    document.querySelectorAll("img[loading='lazy']").forEach(function (i) { i.loading = "eager"; });
+  });
+
+  // busca na referência de classes
+  var busca = document.getElementById("busca");
+  var cartoes = document.querySelectorAll("details.classe");
+  busca.addEventListener("input", function () {
+    var termo = busca.value.trim().toLowerCase();
+    cartoes.forEach(function (c) {
+      var achou = !termo || c.textContent.toLowerCase().indexOf(termo) !== -1;
+      c.style.display = achou ? "" : "none";
+      if (termo && achou) c.open = true;
+    });
+  });
+
+  // destaca no sumário a seção visível
+  var links = document.querySelectorAll("nav.lateral a[href^='#']");
+  var mapa = {};
+  links.forEach(function (a) { mapa[a.getAttribute("href").slice(1)] = a; });
+  if ("IntersectionObserver" in window) {
+    var obs = new IntersectionObserver(function (entradas) {
+      entradas.forEach(function (en) {
+        if (en.isIntersecting && mapa[en.target.id]) {
+          links.forEach(function (a) { a.classList.remove("ativo"); });
+          mapa[en.target.id].classList.add("ativo");
+        }
+      });
+    }, { rootMargin: "-10% 0px -80% 0px" });
+    document.querySelectorAll("section[id], h3[id]").forEach(function (s) { obs.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

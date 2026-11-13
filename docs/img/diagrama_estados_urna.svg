@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="220" viewBox="0 0 860 220" role="img" aria-label="Diagrama de estados da urna">
+<style>
+text { font-family: 'Segoe UI', 'Liberation Sans', Arial, sans-serif; fill: #1d232a; }
+.caixa { fill: #ffffff; stroke: #5b6672; stroke-width: 1.4; }
+.caixa.modelo { fill: #e3f3ea; stroke: #1f6f43; }
+.caixa.interface { fill: #e6eff9; stroke: #1d5fa8; }
+.caixa.dados { fill: #fbeee2; stroke: #b85c12; }
+.seta { stroke: #5b6672; stroke-width: 1.6; fill: none; }
+.rot { font-size: 12px; fill: #5b6672; }
+.tit { font-size: 15px; font-weight: 700; }
+.peq { font-size: 12.5px; }
+</style>
+<rect x="0" y="0" width="860" height="220" fill="#ffffff"/>
+  <defs><marker id="pt3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: #5b6672"/></marker></defs>
+  <rect class="caixa" x="10" y="80" width="150" height="56" rx="28"/><text class="tit" x="85" y="113" text-anchor="middle">PREPARADA</text>
+  <rect class="caixa modelo" x="250" y="80" width="200" height="56" rx="28"/><text class="tit" x="350" y="113" text-anchor="middle">AGUARDANDO_ELEITOR</text>
+  <rect class="caixa interface" x="540" y="10" width="150" height="56" rx="28"/><text class="tit" x="615" y="43" text-anchor="middle">VOTANDO</text>
+  <rect class="caixa dados" x="540" y="150" width="160" height="56" rx="28"/><text class="tit" x="620" y="183" text-anchor="middle">ENCERRADA</text>
+  <g class="rot">
+    <path class="seta" d="M160 108 L248 108" marker-end="url(#pt3)"/><text x="166" y="100">abrir(senha)</text><text x="168" y="128">zerésima</text>
+    <path class="seta" d="M420 80 L540 42" marker-end="url(#pt3)"/><text x="405" y="50">habilitar(eleitor)</text>
+    <path class="seta" d="M560 66 L440 88" marker-end="url(#pt3)"/><text x="452" y="94">último confirmar() / interromper()</text>
+    <path class="seta" d="M420 136 L540 176" marker-end="url(#pt3)"/><text x="410" y="176">encerrar(senha)</text><text x="438" y="192">BU</text>
+  </g>
+</svg>

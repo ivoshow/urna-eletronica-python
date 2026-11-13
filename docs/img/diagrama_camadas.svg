@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="430" viewBox="0 0 900 430" role="img" aria-label="Diagrama de camadas do simulador">
+<style>
+text { font-family: 'Segoe UI', 'Liberation Sans', Arial, sans-serif; fill: #1d232a; }
+.caixa { fill: #ffffff; stroke: #5b6672; stroke-width: 1.4; }
+.caixa.modelo { fill: #e3f3ea; stroke: #1f6f43; }
+.caixa.interface { fill: #e6eff9; stroke: #1d5fa8; }
+.caixa.dados { fill: #fbeee2; stroke: #b85c12; }
+.seta { stroke: #5b6672; stroke-width: 1.6; fill: none; }
+.rot { font-size: 12px; fill: #5b6672; }
+.tit { font-size: 15px; font-weight: 700; }
+.peq { font-size: 12.5px; }
+</style>
+<rect x="0" y="0" width="900" height="430" fill="#ffffff"/>
+  <defs><marker id="pt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: #5b6672"/></marker></defs>
+  <rect class="caixa" x="350" y="14" width="200" height="54" rx="10"/>
+  <text class="tit" x="450" y="38" text-anchor="middle">main.py</text>
+  <text class="peq" x="450" y="57" text-anchor="middle">classe Aplicacao</text>
+
+  <rect class="caixa interface" x="20" y="120" width="330" height="190" rx="12"/>
+  <text class="tit" x="185" y="148" text-anchor="middle">interface/ (PySide6)</text>
+  <text class="peq" x="40" y="180">JanelaTerminal · LeitorBiometrico · Led</text>
+  <text class="peq" x="40" y="204">JanelaUrna · TelaUrna</text>
+  <text class="peq" x="40" y="228">DialogoDocumento</text>
+  <text class="peq" x="40" y="252">ExportadorDocumento</text>
+  <text class="peq" x="40" y="276">Pincel(QPainter) · Sons · Creditos</text>
+
+  <rect class="caixa modelo" x="550" y="120" width="330" height="190" rx="12"/>
+  <text class="tit" x="715" y="148" text-anchor="middle">modelo/ (Python puro)</text>
+  <text class="peq" x="570" y="180">Urna · SessaoVotacao · TerminalMesario</text>
+  <text class="peq" x="570" y="204">Eleicao · Secao · Cargo · Previa</text>
+  <text class="peq" x="570" y="228">Candidato · Vice · Partido</text>
+  <text class="peq" x="570" y="252">Pessoa → Eleitor, Mesario</text>
+  <text class="peq" x="570" y="276">ImpressoraUrna · Documento · MemoriaUrna</text>
+  <text class="peq" x="570" y="300">CarregadorEleicao · ErroUrna (+10)</text>
+
+  <rect class="caixa dados" x="605" y="366" width="220" height="50" rx="10"/>
+  <text class="tit" x="715" y="396" text-anchor="middle">dados/eleicao.json</text>
+  <rect class="caixa dados" x="75" y="366" width="220" height="50" rx="10"/>
+  <text class="tit" x="185" y="396" text-anchor="middle">boletins/ (.txt e .pdf)</text>
+
+  <path class="seta" d="M395 68 L250 118" marker-end="url(#pt)"/>
+  <path class="seta" d="M505 68 L650 118" marker-end="url(#pt)"/>
+  <text class="rot" x="232" y="88">cria as janelas</text>
+  <text class="rot" x="590" y="88">cria o modelo</text>
+  <path class="seta" d="M352 190 L548 190" marker-end="url(#pt)"/>
+  <text class="rot" x="450" y="182" text-anchor="middle">chama métodos</text>
+  <path class="seta" d="M548 240 L352 240" marker-end="url(#pt)"/>
+  <text class="rot" x="450" y="232" text-anchor="middle">avisa os ouvintes</text>
+  <text class="rot" x="450" y="258" text-anchor="middle">(evento)</text>
+  <path class="seta" d="M715 364 L715 312" marker-end="url(#pt)"/>
+  <text class="rot" x="723" y="342">CarregadorEleicao lê</text>
+  <path class="seta" d="M185 312 L185 364" marker-end="url(#pt)"/>
+  <text class="rot" x="193" y="342">ExportadorDocumento grava</text>
+</svg>

@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# ambiente virtual (cada um recria com: pip install -r requirements.txt)
+venv/
+.venv/
+
+# arquivos gerados ao usar o simulador
+boletins/
+memoria/

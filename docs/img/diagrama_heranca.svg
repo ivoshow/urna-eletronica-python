@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="250" viewBox="0 0 860 250" role="img" aria-label="Hierarquias de herança">
+<style>
+text { font-family: 'Segoe UI', 'Liberation Sans', Arial, sans-serif; fill: #1d232a; }
+.caixa { fill: #ffffff; stroke: #5b6672; stroke-width: 1.4; }
+.caixa.modelo { fill: #e3f3ea; stroke: #1f6f43; }
+.caixa.interface { fill: #e6eff9; stroke: #1d5fa8; }
+.caixa.dados { fill: #fbeee2; stroke: #b85c12; }
+.seta { stroke: #5b6672; stroke-width: 1.6; fill: none; }
+.rot { font-size: 12px; fill: #5b6672; }
+.tit { font-size: 15px; font-weight: 700; }
+.peq { font-size: 12.5px; }
+</style>
+<rect x="0" y="0" width="860" height="250" fill="#ffffff"/>
+  <defs><marker id="her" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto">
+    <path d="M0,0 L12,6 L0,12 z" style="fill: #ffffff; stroke: #5b6672; stroke-width: 1.2"/></marker></defs>
+  <g class="peq">
+  <rect class="caixa modelo" x="70" y="14" width="120" height="38" rx="8"/><text x="130" y="38" text-anchor="middle">Pessoa</text>
+  <rect class="caixa modelo" x="10" y="110" width="110" height="38" rx="8"/><text x="65" y="134" text-anchor="middle">Eleitor</text>
+  <rect class="caixa modelo" x="140" y="110" width="110" height="38" rx="8"/><text x="195" y="134" text-anchor="middle">Mesario</text>
+  <path class="seta" d="M65 110 L118 54" marker-end="url(#her)"/><path class="seta" d="M195 110 L142 54" marker-end="url(#her)"/>
+
+  <rect class="caixa" x="330" y="14" width="120" height="38" rx="8"/><text x="390" y="38" text-anchor="middle">Exception</text>
+  <rect class="caixa modelo" x="330" y="90" width="120" height="38" rx="8"/><text x="390" y="114" text-anchor="middle">ErroUrna</text>
+  <path class="seta" d="M390 90 L390 54" marker-end="url(#her)"/>
+  <rect class="caixa modelo" x="285" y="168" width="210" height="64" rx="8"/>
+  <text x="390" y="190" text-anchor="middle">UrnaBloqueada, UrnaOcupada,</text>
+  <text x="390" y="207" text-anchor="middle">EleitorJaVotou, SenhaIncorreta…</text>
+  <text x="390" y="224" text-anchor="middle">(10 exceções)</text>
+  <path class="seta" d="M390 168 L390 130" marker-end="url(#her)"/>
+
+  <rect class="caixa" x="560" y="14" width="110" height="38" rx="8"/><text x="615" y="38" text-anchor="middle">QPainter</text>
+  <rect class="caixa interface" x="560" y="110" width="110" height="38" rx="8"/><text x="615" y="134" text-anchor="middle">Pincel</text>
+  <path class="seta" d="M615 110 L615 54" marker-end="url(#her)"/>
+  <rect class="caixa" x="690" y="6" width="165" height="54" rx="8"/><text x="772" y="29" text-anchor="middle">QWidget /</text><text x="772" y="47" text-anchor="middle">QMainWindow</text>
+  <rect class="caixa interface" x="690" y="110" width="165" height="104" rx="8"/>
+  <text x="772" y="132" text-anchor="middle">TelaUrna, Led,</text><text x="772" y="150" text-anchor="middle">LeitorBiometrico,</text>
+  <text x="772" y="168" text-anchor="middle">JanelaUrna,</text><text x="772" y="186" text-anchor="middle">JanelaTerminal,</text>
+  <text x="772" y="204" text-anchor="middle">DialogoDocumento</text>
+  <path class="seta" d="M772 110 L772 62" marker-end="url(#her)"/>
+  </g>
+</svg>
